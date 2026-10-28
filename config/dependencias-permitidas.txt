@@ -1,0 +1,12 @@
+# Lista de dependencias aprobadas por IT. Formato:  ecosistema:nombre   (python | npm | nuget)
+# EJEMPLO de arranque: IT decide que entra de verdad. Una dependencia fuera de esta lista no se puede instalar
+# ni subir (hook guardia.py y pipeline). Las versiones deben ir fijadas (==, numero exacto).
+python:flask
+python:jinja2
+python:werkzeug
+python:requests
+python:python-dotenv
+python:pytest
+npm:express
+npm:vite
+nuget:Newtonsoft.Json

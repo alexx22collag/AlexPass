@@ -1,0 +1,10 @@
+# IT revisa todo mientras la plataforma esta en fase piloto. Sustituye @ORG/it-revisores por el equipo real.
+# En Azure DevOps este fichero no se aplica: se configura con "Automatically included reviewers" (ver it/politicas-rama.md).
+*                       @ORG/it-revisores
+/scripts/               @ORG/it-revisores
+/config/                @ORG/it-revisores
+/.claude/               @ORG/it-revisores
+/.github/               @ORG/it-revisores
+/azure-pipelines.yml    @ORG/it-revisores
+/CODEOWNERS             @ORG/it-revisores
+/docs/ESTADO.json       @ORG/it-revisores

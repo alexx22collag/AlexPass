@@ -1,0 +1,19 @@
+# Validacion obligatoria de IT para Azure DevOps.
+# En Azure Repos el disparo por solicitud de revision se configura con una "Build validation" en la politica
+# de la rama main (ver it/politicas-rama.md); por eso aqui trigger y pr estan desactivados.
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.12'
+  # IT: en produccion, traer estos scripts del repositorio CENTRAL de IT y no de la app.
+  - script: |
+      if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    displayName: Instalar dependencias (si las hay)
+  - script: python scripts/validar.py --ci
+    displayName: Validacion obligatoria de IT

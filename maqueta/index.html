@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maqueta - Mis contraseñas</title>
+<style>
+/* Estilo inspirado en Material 3 (como Angular Material), iteracion 3. Todo local: sin librerias ni red. */
+:root{
+  --primary:#0b57d0; --on-primary:#ffffff; --primary-container:#d3e3fd; --on-primary-container:#041e49;
+  --secondary-container:#dde3ea; --on-secondary-container:#111c2b;
+  --surface:#f7f9fc; --card:#ffffff; --surface-container:#eceff5; --surface-variant:#e1e2ec;
+  --on-surface:#1a1c1e; --on-surface-variant:#44474e; --outline:#74777f; --outline-variant:#c4c6d0;
+  --error:#b3261e; --error-container:#f9dedc;
+  --ok:#146c2e; --ok-container:#c4eed0;
+  --warn:#6d5200; --warn-container:#ffe49c;
+  --soon:#8a3c00; --soon-container:#ffdbc7;
+  --inv-surface:#2e3135; --inv-on-surface:#f0f0f4; --inv-primary:#a8c7fa;
+  --maq:#ffd23f; --maq-ink:#241d00;
+  --r-xs:4px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:28px;
+  --e1:0 1px 2px rgba(0,0,0,.28),0 1px 3px 1px rgba(0,0,0,.12);
+  --e3:0 4px 8px 3px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.28);
+  --bh:40px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --primary:#a8c7fa; --on-primary:#062e6f; --primary-container:#0842a0; --on-primary-container:#d3e3fd;
+    --secondary-container:#3b4453; --on-secondary-container:#dde3ea;
+    --surface:#111317; --card:#1b1e23; --surface-container:#23272d; --surface-variant:#44474e;
+    --on-surface:#e3e2e6; --on-surface-variant:#c4c6d0; --outline:#8e9099; --outline-variant:#44474e;
+    --error:#f2b8b5; --error-container:#601410;
+    --ok:#a8d5b2; --ok-container:#0f3a1c;
+    --warn:#ffe49c; --warn-container:#4a3800;
+    --soon:#ffb68f; --soon-container:#5c2400;
+    --inv-surface:#e3e2e6; --inv-on-surface:#2e3135; --inv-primary:#0b57d0;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--on-surface);font:400 16px/24px Roboto,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;letter-spacing:.01em}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+h1{font:400 32px/40px inherit;margin:0;letter-spacing:0}
+h2{font:500 22px/28px inherit;margin:0 0 4px;letter-spacing:0}
+.sub{color:var(--on-surface-variant);margin:4px 0 24px}
+.hint,.support{font-size:12px;line-height:16px;color:var(--on-surface-variant);margin:4px 16px 0}
+.ic{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic.big{width:32px;height:32px}.ic.s{width:18px;height:18px}
+
+/* ===== Rotulo fijo de la maqueta ===== */
+.maq-banner{position:sticky;top:0;z-index:100;background:var(--maq);color:var(--maq-ink);padding:8px 16px;display:flex;flex-wrap:wrap;gap:2px 16px;align-items:baseline}
+.maq-banner strong{font:700 14px/20px inherit;letter-spacing:.08em}
+.maq-banner span{font-size:12px;line-height:16px}
+.panel-maq{background:var(--card);border-bottom:1px solid var(--outline-variant);padding:6px 16px;font-size:13px;color:var(--on-surface-variant)}
+.panel-maq summary{cursor:pointer;padding:6px 0;font-weight:500}
+.pm-body{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;padding:4px 0 8px}
+.pm-body .grp{display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* ===== Estructura: menu lateral + contenido ===== */
+.shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100vh - var(--bh))}
+.drawer{position:sticky;top:var(--bh);height:calc(100vh - var(--bh));padding:12px;border-right:1px solid var(--outline-variant);background:var(--surface);display:flex;flex-direction:column;gap:2px;overflow:auto}
+.brand{display:flex;gap:12px;align-items:center;padding:16px 16px 20px;font:500 22px/28px inherit}
+.brand .logo{width:40px;height:40px;border-radius:12px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center}
+.nav-item{display:flex;align-items:center;gap:12px;height:56px;padding:0 16px;border:0;border-radius:var(--r-xl);background:none;color:var(--on-surface-variant);font:500 14px/20px inherit;letter-spacing:.1px;cursor:pointer;text-align:left;width:100%}
+.nav-item:hover{background:rgba(127,127,127,.12)}
+.nav-item[aria-current="page"]{background:var(--secondary-container);color:var(--on-secondary-container)}
+.nav-sep{height:1px;background:var(--outline-variant);margin:12px 16px}
+.scrim{display:none}
+.main{min-width:0;display:flex;flex-direction:column}
+.appbar{position:sticky;top:var(--bh);z-index:40;height:64px;display:flex;align-items:center;gap:8px;padding:0 16px 0 8px;background:var(--surface)}
+.appbar #btnMenu{display:none}
+.appbar .titulo{font:400 22px/28px inherit;flex:1}
+@media (min-width:960px){.appbar .titulo{visibility:hidden}}
+.user{display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border-radius:var(--r-xl);background:var(--surface-container);font-size:13px;line-height:16px}
+.user .av{width:32px;height:32px;border-radius:50%;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;font-weight:500}
+.user small{display:block;color:var(--on-surface-variant);font-size:11px}
+.content{width:100%;max-width:1040px;margin:0 auto;padding:8px 32px 120px}
+
+body.login .drawer,body.login .appbar{display:none}
+body.login .shell{grid-template-columns:1fr}
+body.login .content{max-width:480px;padding-top:32px}
+
+/* ===== Componentes ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border-radius:var(--r-xl);border:1px solid transparent;font:500 14px/20px inherit;letter-spacing:.1px;cursor:pointer;background:none;white-space:nowrap}
+.btn .ic{width:18px;height:18px}
+.btn.filled{background:var(--primary);color:var(--on-primary)}
+.btn.filled:hover{box-shadow:var(--e1)}
+.btn.tonal{background:var(--secondary-container);color:var(--on-secondary-container)}
+.btn.tonal:hover{box-shadow:var(--e1)}
+.btn.outlined{border-color:var(--outline);color:var(--primary)}
+.btn.outlined:hover{background:rgba(11,87,208,.08)}
+.btn.text{color:var(--primary);padding:0 12px}
+.btn.text:hover{background:rgba(11,87,208,.08)}
+.btn.small{height:32px;padding:0 16px}
+.btn.wide{width:100%}
+.btn[disabled]{opacity:.38;cursor:not-allowed;box-shadow:none}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:0;background:none;display:inline-grid;place-items:center;cursor:pointer;color:var(--on-surface-variant)}
+.icon-btn:hover{background:rgba(127,127,127,.14)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.fab{display:none;position:fixed;right:24px;bottom:24px;z-index:30;height:56px;padding:0 20px;border:0;border-radius:var(--r-lg);background:var(--primary-container);color:var(--on-primary-container);box-shadow:var(--e3);font:500 14px/20px inherit;align-items:center;gap:12px;cursor:pointer}
+body[data-p="lista"] .fab{display:inline-flex}
+
+.card{background:var(--card);border:1px solid var(--outline-variant);border-radius:var(--r-lg);padding:24px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+
+/* Campos con etiqueta flotante */
+.field{position:relative;margin:20px 0 0}
+.field input,.field select{width:100%;height:56px;padding:0 16px;border:1px solid var(--outline);border-radius:var(--r-xs);background:transparent;outline:0}
+.field select{appearance:none;-webkit-appearance:none;padding-right:44px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2374777f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field input:hover,.field select:hover{border-color:var(--on-surface)}
+.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+.field label{position:absolute;left:12px;top:20px;padding:0 4px;background:var(--card);color:var(--on-surface-variant);line-height:16px;pointer-events:none;transition:top .12s,font-size .12s}
+.field input:focus ~ label,.field input:not(:placeholder-shown) ~ label,.field select ~ label,.field input[type="date"] ~ label{top:-8px;font-size:12px}
+.field input:focus ~ label{color:var(--primary)}
+.field input:disabled{opacity:.5}
+.field.trail input{padding-right:104px}
+.field .tr{position:absolute;right:4px;top:8px;display:flex}
+.searchbar{display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;border-radius:var(--r-xl);background:var(--surface-container);margin-bottom:12px;color:var(--on-surface-variant)}
+.searchbar input{flex:1;border:0;background:none;outline:0;height:100%;min-width:0}
+
+/* Chips, selector y interruptores */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.fchip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--outline);border-radius:var(--r-sm);background:none;font:500 14px/20px inherit;cursor:pointer}
+.fchip[aria-pressed="true"]{background:var(--secondary-container);border-color:transparent;color:var(--on-secondary-container)}
+.fchip[aria-pressed="true"]::before{content:"\2713"}
+.choice{position:relative;display:inline-flex}
+.choice input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer}
+.choice span{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border:1px solid var(--outline);border-radius:var(--r-sm);font:500 14px/20px inherit}
+.choice input:checked + span{background:var(--secondary-container);border-color:transparent;color:var(--on-secondary-container)}
+.choice input:checked + span::before{content:"\2713"}
+.choice input:focus-visible + span{outline:3px solid var(--primary);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--outline);border-radius:var(--r-xl);overflow:hidden;margin-bottom:20px}
+.seg button{height:40px;padding:0 20px;border:0;border-right:1px solid var(--outline);background:none;font:500 14px/20px inherit;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--secondary-container);color:var(--on-secondary-container)}
+.seg button[aria-pressed="true"]::before{content:"\2713 "}
+.switch{display:flex;align-items:center;gap:16px;padding:8px 0;cursor:pointer}
+.switch input{appearance:none;-webkit-appearance:none;width:52px;height:32px;border-radius:16px;border:2px solid var(--outline);background:var(--surface-variant);position:relative;flex:none;margin:0;cursor:pointer;transition:background .15s}
+.switch input::before{content:"";position:absolute;top:50%;left:6px;width:16px;height:16px;border-radius:50%;background:var(--outline);transform:translateY(-50%);transition:left .15s,width .15s,height .15s}
+.switch input:checked{background:var(--primary);border-color:var(--primary)}
+.switch input:checked::before{left:20px;width:24px;height:24px;background:var(--on-primary)}
+.switch input:disabled{opacity:.5;cursor:not-allowed}
+input[type="range"],input[type="checkbox"]{accent-color:var(--primary)}
+.slider{display:flex;flex-direction:column;gap:4px;margin:16px 0}
+
+/* Notas de la maqueta (decidido / pregunta / propuesta / pendiente) */
+.note{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:var(--r-md);background:var(--warn-container);color:var(--on-surface);margin:16px 0;font-size:14px;line-height:20px}
+.note.ok{background:var(--ok-container)}
+.note .tag{flex:none;font:700 11px/16px inherit;letter-spacing:.06em;padding:2px 8px;border-radius:var(--r-xs);background:var(--maq);color:var(--maq-ink)}
+.note.ok .tag{background:var(--ok);color:var(--card)}
+.note p{margin:0}
+.banner{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r-md);background:var(--soon-container);color:var(--soon);margin-bottom:16px;font-weight:500;font-size:14px;line-height:20px}
+.banner span{flex:1;min-width:200px}
+.err{display:none;align-items:center;gap:8px;margin-top:16px;padding:12px 16px;border-radius:var(--r-md);background:var(--error-container);color:var(--error);font-size:14px;font-weight:500}
+.err.on{display:flex}
+
+/* Lista */
+.lista{background:var(--card);border:1px solid var(--outline-variant);border-radius:var(--r-lg);overflow:hidden}
+.item{display:grid;grid-template-columns:40px 1.7fr 1fr 1.5fr auto;gap:8px 16px;align-items:center;padding:12px 16px;border-top:1px solid var(--outline-variant)}
+.item:first-child{border-top:0}
+.avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:500;color:var(--on-surface)}
+.a0{background:#d3e3fd}.a1{background:#c4eed0}.a2{background:#ffdbc7}.a3{background:#e8def8}.a4{background:#ffe49c}
+@media (prefers-color-scheme: dark){.a0{background:#0842a0}.a1{background:#0f3a1c}.a2{background:#5c2400}.a3{background:#4a3a78}.a4{background:#4a3800}}
+.item .t{font-weight:500}
+.item .s,.item .when small{display:block;color:var(--on-surface-variant);font-size:13px;line-height:18px}
+.tipo{margin-left:8px;font-size:11px;line-height:16px;padding:0 8px;border-radius:var(--r-xs);border:1px solid var(--outline-variant);color:var(--on-surface-variant);vertical-align:middle}
+.tipo.emp{border-color:var(--primary);color:var(--primary)}
+.item .st{display:flex;flex-wrap:wrap;gap:6px}
+.item .act{display:flex;align-items:center;gap:4px;justify-content:flex-end}
+.reveal{grid-column:2/-1;background:var(--surface-container);border-radius:var(--r-sm);padding:8px 12px;font-size:14px}
+.reveal code{font-family:ui-monospace,Consolas,monospace}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:var(--r-sm);font:500 12px/16px inherit}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--ok-container);color:var(--ok)}
+.chip.atn{background:var(--warn-container);color:var(--warn)}
+.chip.soon{background:var(--soon-container);color:var(--soon)}
+.chip.bad{background:var(--error-container);color:var(--error)}
+.vacio{padding:48px 16px;text-align:center;color:var(--on-surface-variant)}
+.vacio strong{display:block;color:var(--on-surface);font:500 22px/28px inherit;margin:12px 0 4px}
+.vacio-ic{width:72px;height:72px;margin:0 auto;border-radius:50%;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center}
+.vacio .actions{justify-content:center}
+
+/* Renovar */
+.pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 16px;padding:0;list-style:none;counter-reset:p}
+.pasos li{counter-increment:p;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--outline-variant);border-radius:var(--r-md);padding:12px 16px;font-size:14px;line-height:20px}
+.pasos li::before{content:counter(p);flex:none;width:28px;height:28px;border-radius:50%;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;font-weight:500}
+.chips-row{display:flex;flex-wrap:wrap;gap:8px}
+.nueva{font-family:ui-monospace,Consolas,monospace;font-size:22px;line-height:30px;letter-spacing:.04em;word-break:break-all;background:var(--surface-container);border-radius:var(--r-md);padding:20px;margin:16px 0 12px}
+.fuerza{height:4px;border-radius:2px;background:var(--surface-variant);overflow:hidden}
+.fuerza i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+.sel-lista{display:grid;gap:8px;margin:12px 0}
+.sel-lista label{display:flex;gap:16px;align-items:center;padding:12px 16px;border:1px solid var(--outline-variant);border-radius:var(--r-md);cursor:pointer}
+.prueba{background:var(--surface-container);border-radius:var(--r-md);padding:16px;margin-top:16px}
+
+/* Tablas */
+table.mini{width:100%;border-collapse:collapse;font-size:14px}
+table.mini th,table.mini td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--outline-variant)}
+table.mini th{color:var(--on-surface-variant);font-weight:500;font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+ul.limpia{margin:8px 0 0;padding-left:20px}ul.limpia li{margin:6px 0}
+
+/* Entrada */
+.login-card{background:var(--card);border:1px solid var(--outline-variant);border-radius:var(--r-xl);padding:32px 28px}
+.login-card .logo{width:64px;height:64px;border-radius:20px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;margin:0 auto 16px}
+.login-card h1{font-size:28px;line-height:36px;text-align:center}
+.login-card .sub{text-align:center;margin-bottom:24px}
+.paso{border:1px solid var(--outline-variant);border-radius:var(--r-md);padding:16px;margin-bottom:12px}
+.paso h2{font-size:16px;line-height:24px;margin-bottom:8px;display:flex;gap:10px;align-items:center}
+.paso h2 b{width:24px;height:24px;border-radius:50%;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;font-size:13px}
+
+/* Snackbar */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:120;width:min(560px,calc(100% - 32px));pointer-events:none;display:flex;flex-direction:column;gap:8px}
+.snack{pointer-events:auto;background:var(--inv-surface);color:var(--inv-on-surface);border-radius:var(--r-xs);padding:14px 16px;box-shadow:var(--e3);font-size:14px;line-height:20px;overflow:hidden}
+.snack .fila{display:flex;gap:16px;align-items:center;justify-content:space-between}
+.snack button{background:none;border:0;color:var(--inv-primary);font:500 14px/20px inherit;padding:6px 8px;border-radius:var(--r-sm);cursor:pointer}
+.snack .barra{height:3px;background:rgba(127,127,127,.35);margin:10px -16px -14px}
+.snack .barra i{display:block;height:100%;background:var(--inv-primary);width:100%}
+
+/* ===== Adaptable a movil ===== */
+@media (max-width:959px){
+  .shell{grid-template-columns:1fr}
+  .drawer{position:fixed;top:var(--bh);left:0;bottom:0;height:auto;width:300px;z-index:90;transform:translateX(-105%);transition:transform .22s;box-shadow:var(--e3)}
+  .drawer.open{transform:none}
+  .scrim.on{display:block;position:fixed;inset:0;top:var(--bh);background:rgba(0,0,0,.4);z-index:80}
+  .appbar #btnMenu{display:inline-grid}
+  .appbar .user div{display:none}
+  .user{padding:4px}
+  .content{padding:8px 16px 120px}
+  h1{font-size:28px;line-height:36px}
+}
+@media (max-width:760px){
+  .grid2{grid-template-columns:1fr}
+  .item{grid-template-columns:40px 1fr}
+  .item .when,.item .st,.item .act,.item .reveal{grid-column:2}
+  .item .act{justify-content:flex-start}
+  .card{padding:16px}
+  .fab{right:16px;bottom:16px}
+  .login-card{padding:24px 16px}
+}
+</style>
+</head>
+<body data-p="entrada">
+
+<!-- Iconos propios (sin librerias externas) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="M2 2l20 20"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></symbol>
+    <symbol id="i-login" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></symbol>
+  </defs>
+</svg>
+
+<div class="maq-banner" role="note">
+  <strong>MAQUETA · DATOS FICTICIOS</strong>
+  <span>Esto es solo un dibujo: todavía no funciona ni toca datos reales. No escribas contraseñas reales aquí.</span>
+</div>
+
+<details class="panel-maq" open>
+  <summary>Panel de la maqueta (no forma parte de la app)</summary>
+  <div class="pm-body">
+    <span class="grp">Ver:
+      <button class="btn outlined small" data-go="entrada">Entrada</button>
+      <button class="btn outlined small" data-go="lista">Mi lista</button>
+    </span>
+    <span class="grp">Estados:
+      <label class="switch"><input type="checkbox" id="chkVacia"> Lista vacía</label>
+      <label class="switch"><input type="checkbox" id="chkError"> Simular error al guardar</label>
+    </span>
+  </div>
+</details>
+
+<div class="shell">
+
+  <aside class="drawer" id="drawer" aria-label="Menú">
+    <div class="brand"><span class="logo"><svg class="ic"><use href="#i-lock"/></svg></span>Mis contraseñas</div>
+    <nav id="nav">
+      <button class="nav-item" data-go="lista"><svg class="ic"><use href="#i-list"/></svg>Mi lista</button>
+      <button class="nav-item" data-go="nueva"><svg class="ic"><use href="#i-plus"/></svg>Añadir</button>
+      <button class="nav-item" data-go="renovar"><svg class="ic"><use href="#i-refresh"/></svg>Renovar</button>
+      <button class="nav-item" data-go="exportar"><svg class="ic"><use href="#i-download"/></svg>Exportar</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item" data-go="registro"><svg class="ic"><use href="#i-history"/></svg>Registro</button>
+      <button class="nav-item" data-go="seguridad"><svg class="ic"><use href="#i-shield"/></svg>Seguridad</button>
+    </nav>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="main">
+    <header class="appbar">
+      <button class="icon-btn" id="btnMenu" aria-label="Abrir menú"><svg class="ic"><use href="#i-menu"/></svg></button>
+      <div class="titulo" id="appTitulo"></div>
+      <div class="user"><span class="av">UE</span><div>Usuario Ejemplo<small>Sesión SSO (ficticia)</small></div></div>
+    </header>
+
+    <main class="content">
+
+<!-- 1. ENTRADA -->
+<section id="s-entrada" hidden>
+  <div class="login-card">
+    <div class="logo"><svg class="ic big"><use href="#i-lock"/></svg></div>
+    <h1>Mis contraseñas</h1>
+    <p class="sub">Solo tú ves tus contraseñas. Cada persona tiene su propia caja cerrada.</p>
+
+    <div class="paso">
+      <h2><b>1</b>Quién eres</h2>
+      <button class="btn filled wide" id="btnSso"><svg class="ic"><use href="#i-login"/></svg>Entrar con SSO (ficticio)</button>
+    </div>
+    <div class="paso" id="cardMaestra" style="opacity:.55">
+      <h2><b>2</b>Abrir tu caja</h2>
+      <div class="field">
+        <input id="maestra" type="password" autocomplete="off" placeholder=" " disabled>
+        <label for="maestra">Contraseña maestra</label>
+      </div>
+      <p class="support">En la maqueta vale cualquier texto. Déjalo vacío para ver el error.</p>
+      <div class="err" id="errMaestra" role="alert"><svg class="ic s"><use href="#i-alert"/></svg>Contraseña maestra incorrecta. Te quedan 4 intentos (ejemplo de error).</div>
+      <div class="actions"><button class="btn filled wide" id="btnAbrir" disabled>Abrir mi caja</button></div>
+    </div>
+    <div style="text-align:center"><button class="btn text" id="btnOlvide">Olvidé la contraseña maestra</button></div>
+
+    <div class="paso" id="cardEmergencia" hidden>
+      <h2><svg class="ic"><use href="#i-key"/></svg>Clave de emergencia</h2>
+      <div class="field">
+        <input id="claveEmerg" autocomplete="off" placeholder=" ">
+        <label for="claveEmerg">La que imprimiste</label>
+      </div>
+      <p class="support">En la maqueta vale cualquier texto. Déjalo vacío para ver el error.</p>
+      <div class="err" id="errEmerg" role="alert"><svg class="ic s"><use href="#i-alert"/></svg>Esa clave no es válida (ejemplo de error). Nadie más puede recuperarla por ti, ni IT.</div>
+      <div class="actions"><button class="btn filled wide" id="btnEmerg">Recuperar acceso</button></div>
+    </div>
+
+    <div class="note ok"><span class="tag">DECIDIDO</span><p>Para que nadie más pueda leer tus contraseñas se usa una <b>contraseña maestra</b>. No hay recuperación por terceros: si la olvidas, solo sirve tu <b>clave de emergencia impresa</b>.</p></div>
+  </div>
+</section>
+
+<!-- 2. MI LISTA -->
+<section id="s-lista" hidden>
+  <h1>Mi lista</h1>
+  <p class="sub" id="resumen"></p>
+  <div id="aviso"></div>
+  <div class="searchbar"><svg class="ic"><use href="#i-search"/></svg><input id="busca" type="search" placeholder="Buscar por sitio o usuario" aria-label="Buscar"></div>
+  <div class="chips" id="filtros" role="group" aria-label="Filtros">
+    <button class="fchip" data-f="todas" aria-pressed="true">Todas</button>
+    <button class="fchip" data-f="20" aria-pressed="false">Caducan en 20 días</button>
+    <button class="fchip" data-f="caducadas" aria-pressed="false">Caducadas</button>
+    <button class="fchip" data-f="personal" aria-pressed="false">Personales</button>
+    <button class="fchip" data-f="empresa" aria-pressed="false">De la empresa</button>
+  </div>
+  <div class="lista" id="lista"></div>
+</section>
+
+<!-- 3. ANADIR -->
+<section id="s-nueva" hidden>
+  <h1>Añadir una contraseña</h1>
+  <p class="sub">Aquí guardas los datos de una cuenta. La app te avisará antes de que caduque.</p>
+  <div class="card">
+    <div class="field"><input id="fSitio" placeholder=" " autocomplete="off"><label for="fSitio">Sitio o aplicación</label></div>
+    <p class="support">Ejemplo: Sitio Ejemplo 1</p>
+    <div class="field"><input id="fUsuario" placeholder=" " autocomplete="off"><label for="fUsuario">Usuario o correo</label></div>
+    <p class="support">Ejemplo: usuario@example.com</p>
+    <div class="field trail">
+      <input id="fClave" type="password" placeholder=" " autocomplete="off"><label for="fClave">Contraseña</label>
+      <span class="tr">
+        <button class="icon-btn" id="btnMostrar" type="button" aria-label="Mostrar contraseña" title="Mostrar"><svg class="ic"><use href="#i-eye"/></svg></button>
+        <button class="icon-btn" id="btnGenForm" type="button" aria-label="Generar aleatoria" title="Generar aleatoria"><svg class="ic"><use href="#i-key"/></svg></button>
+      </span>
+    </div>
+    <p class="support">En la maqueta no se guarda nada real.</p>
+
+    <h2 style="margin-top:24px;font-size:16px;line-height:24px">Tipo de cuenta</h2>
+    <div class="chips-row" id="fTipo">
+      <label class="choice"><input type="radio" name="tipo" value="Personal" checked><span>Personal</span></label>
+      <label class="choice"><input type="radio" name="tipo" value="Empresa"><span>De la empresa</span></label>
+    </div>
+    <div class="note" id="avisoEmpresa" hidden><span class="tag">PENDIENTE</span><p>Guardar contraseñas de la empresa en esta app puede no estar permitido. Esto lo tiene que confirmar IT.</p></div>
+
+    <div class="grid2">
+      <div class="field">
+        <select id="fCada">
+          <option value="30">30 días</option><option value="60">60 días</option>
+          <option value="90" selected>90 días (3 meses)</option><option value="180">180 días (6 meses)</option>
+        </select><label for="fCada">Caduca cada</label>
+      </div>
+      <div class="field"><input id="fUltimo" type="date"><label for="fUltimo">Último cambio</label></div>
+    </div>
+
+    <h2 style="margin-top:24px;font-size:16px;line-height:24px">Avisos</h2>
+    <div class="field" style="max-width:320px">
+      <select id="fAviso">
+        <option value="3">3 días antes</option><option value="7" selected>7 días antes (una semana)</option>
+        <option value="14">14 días antes</option><option value="20">20 días antes</option>
+      </select><label for="fAviso">Avisarme</label>
+    </div>
+    <label class="switch"><input type="checkbox" checked disabled> Aviso dentro de la app</label>
+    <label class="switch"><input type="checkbox" id="fCorreo" checked> Aviso por correo a usuario1@example.com</label>
+    <div class="note"><span class="tag">PROPUESTA</span><p>Así sería el correo: «Tu contraseña de "Sitio Ejemplo 1" caduca en 7 días. Recuerda renovarla.» No incluiría nunca la contraseña ni el usuario. ¿Te parece bien?</p></div>
+
+    <div class="err" id="errForm" role="alert"></div>
+    <div class="actions">
+      <button class="btn filled" id="btnGuardar">Guardar</button>
+      <button class="btn text" data-go="lista">Cancelar</button>
+    </div>
+  </div>
+</section>
+
+<!-- 4. RENOVAR -->
+<section id="s-renovar" hidden>
+  <h1>Renovar contraseñas</h1>
+  <p class="sub">La app te da una contraseña aleatoria. Tú la cambias en el sitio y la guardas aquí.</p>
+  <div class="seg" role="group" aria-label="Modo">
+    <button id="modoUna" aria-pressed="true">Una sola</button>
+    <button id="modoVarias" aria-pressed="false">Todas las que caducan en 20 días</button>
+  </div>
+
+  <div id="panelUna">
+    <ol class="pasos">
+      <li><span><b>Genera</b> una contraseña nueva</span></li>
+      <li><span><b>Cámbiala tú</b> en la web de ese sitio</span></li>
+      <li><span><b>Guárdala</b> aquí cuando el sitio la acepte</span></li>
+      <li><span><b>Confirma</b> en "Mi lista" que funciona</span></li>
+    </ol>
+    <div class="card">
+      <div class="field"><select id="rSel"></select><label for="rSel">¿Cuál renuevas?</label></div>
+      <h2 style="margin-top:24px;font-size:16px;line-height:24px">Cómo quieres la contraseña</h2>
+      <div class="slider"><label for="gLen">Longitud: <output id="gLenOut">20</output> caracteres</label><input type="range" id="gLen" min="12" max="32" value="20"></div>
+      <div class="chips-row">
+        <label class="choice"><input type="checkbox" id="gMay" checked><span>Mayúsculas</span></label>
+        <label class="choice"><input type="checkbox" id="gMin" checked><span>Minúsculas</span></label>
+        <label class="choice"><input type="checkbox" id="gNum" checked><span>Números</span></label>
+        <label class="choice"><input type="checkbox" id="gSim" checked><span>Símbolos</span></label>
+      </div>
+      <p class="hint" style="margin-left:0">Cada sitio tiene sus reglas (longitud, símbolos). Aquí las ajustas para que el sitio la acepte.</p>
+      <div class="nueva" id="gOut" aria-live="polite"></div>
+      <div class="fuerza" aria-hidden="true"><i id="gFuerza"></i></div>
+      <p class="hint" id="gFuerzaTxt" style="margin-left:0"></p>
+      <p class="hint" style="margin-left:0">Ejemplo ficticio: no se guarda ni se usa en ningún sitio.</p>
+      <div class="actions">
+        <button class="btn tonal" id="btnOtra"><svg class="ic"><use href="#i-refresh"/></svg>Generar otra</button>
+        <button class="btn outlined" id="btnCopiarNueva"><svg class="ic"><use href="#i-copy"/></svg>Copiar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Guardar la nueva</h2>
+      <p style="margin:4px 0 0">La app <b>no se conecta</b> a ese sitio: no sabe si la ha aceptado. Pulsa guardar cuando ya la hayas cambiado allí.</p>
+      <div class="actions"><button class="btn filled" id="btnGuardarNueva"><svg class="ic"><use href="#i-check"/></svg>Ya la he cambiado en el sitio · Guardar</button></div>
+      <div class="err" id="errRenovar" role="alert"><svg class="ic s"><use href="#i-alert"/></svg>No se pudo guardar. Inténtalo de nuevo (ejemplo de error).</div>
+      <div class="note ok"><span class="tag">DECIDIDO</span><p>Al guardar, la app conserva la contraseña anterior <b>hasta que confirmes que la nueva funciona</b>. Así no te quedas sin acceso si el sitio la rechaza. Además tienes 20 segundos para deshacer.</p></div>
+    </div>
+  </div>
+
+  <div id="panelVarias" hidden>
+    <div class="card">
+      <h2>Caducadas o que caducan en los próximos 20 días</h2>
+      <p class="hint" style="margin-left:0">Máximo 15 cambios de una vez. Se empieza con una prueba en seco: no se cambia nada hasta que confirmes.</p>
+      <div class="sel-lista" id="bloqueLista"></div>
+      <p id="bloqueCuenta" class="hint" style="margin-left:0"></p>
+      <div class="actions"><button class="btn filled" id="btnPrueba">Ver prueba en seco</button></div>
+      <div class="prueba" id="pruebaSeco" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. EXPORTAR -->
+<section id="s-exportar" hidden>
+  <h1>Exportar</h1>
+  <p class="sub">Una hoja de Excel para ver todo de un vistazo.</p>
+  <div class="card">
+    <h2>Lista sin contraseñas</h2>
+    <p style="margin:4px 0 16px">Incluye sitio, usuario, tipo, fecha de caducidad y días que quedan. <b>No incluye las contraseñas.</b></p>
+    <div id="exportVista"></div>
+    <div class="actions"><button class="btn filled" id="btnExportar"><svg class="ic"><use href="#i-download"/></svg>Descargar Excel (ficticio)</button></div>
+  </div>
+  <div class="note ok"><span class="tag">DECIDIDO</span><p>La exportación es <b>siempre sin contraseñas</b>: un Excel con todas las contraseñas sería legible para cualquiera y anularía la protección de tu caja.</p></div>
+</section>
+
+<!-- 6. REGISTRO -->
+<section id="s-registro" hidden>
+  <h1>Mi registro</h1>
+  <p class="sub">Qué se hizo y cuándo. Solo lo ves tú, y <b>nunca contiene contraseñas</b>.</p>
+  <div class="card" style="padding:0;overflow:hidden"><div id="regTabla"></div></div>
+</section>
+
+<!-- 7. SEGURIDAD -->
+<section id="s-seguridad" hidden>
+  <h1>Seguridad</h1>
+  <p class="sub">Tu clave de emergencia y qué no se guarda.</p>
+  <div class="card">
+    <h2>Clave de emergencia</h2>
+    <p style="margin:4px 0 0">Se genera <b>una sola vez</b>. Imprímela y guárdala en un sitio seguro. Con ella recuperas el acceso si olvidas la contraseña maestra. Nadie más puede usarla por ti, ni IT.</p>
+    <div class="nueva" id="kitClave" hidden aria-live="polite"></div>
+    <p class="hint" id="kitAviso" hidden style="margin-left:0">Ejemplo ficticio: no se guarda ni se usa en ningún sitio. En la app real solo se mostraría esta vez.</p>
+    <div class="actions">
+      <button class="btn filled" id="btnKit"><svg class="ic"><use href="#i-key"/></svg>Generar mi clave de emergencia</button>
+      <button class="btn outlined" id="btnImprimir" hidden><svg class="ic"><use href="#i-printer"/></svg>Imprimir (ficticio)</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Qué no se guarda</h2>
+    <ul class="limpia">
+      <li>La contraseña maestra nunca se guarda ni queda en el navegador.</li>
+      <li>Tus contraseñas en claro no quedan en la caché, el historial ni el autocompletado del navegador.</li>
+      <li>Nadie ve tus datos sin haber iniciado sesión.</li>
+    </ul>
+  </div>
+</section>
+
+    </main>
+  </div>
+</div>
+
+<button class="fab" data-go="nueva" aria-label="Añadir una contraseña"><svg class="ic"><use href="#i-plus"/></svg>Añadir</button>
+<div id="toast" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var ic=function(n,c){return '<svg class="ic'+(c?' '+c:'')+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>'};
+
+var HOY=new Date(); HOY.setHours(0,0,0,0);
+function sumar(n){var d=new Date(HOY); d.setDate(d.getDate()+n); return d}
+function fmt(d){return d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}
+function iso(d){var m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return d.getFullYear()+'-'+m+'-'+dd}
+
+/* Datos inventados. "dias" = dias que faltan para que caduque (negativo = ya caducada). */
+var datos=[
+  {id:1,sitio:'Aplicación interna Ejemplo 1',usuario:'usuario1@example.com',tipo:'Empresa',cada:90,dias:-2},
+  {id:2,sitio:'Ordenador del trabajo (ejemplo)',usuario:'usuario1@example.com',tipo:'Empresa',cada:180,dias:5},
+  {id:3,sitio:'Sitio Ejemplo 1',usuario:'usuario2@example.com',tipo:'Personal',cada:90,dias:7},
+  {id:4,sitio:'Correo personal Ejemplo',usuario:'usuario2@example.com',tipo:'Personal',cada:90,dias:12},
+  {id:5,sitio:'Portal Proveedores Ejemplo',usuario:'usuario1@example.com',tipo:'Empresa',cada:60,dias:19},
+  {id:6,sitio:'Tienda Ejemplo',usuario:'usuario3@example.com',tipo:'Personal',cada:180,dias:45,pendiente:true},
+  {id:7,sitio:'Red Social Ejemplo',usuario:'usuario3@example.com',tipo:'Personal',cada:90,dias:60},
+  {id:8,sitio:'Streaming Ejemplo',usuario:'usuario2@example.com',tipo:'Personal',cada:180,dias:120},
+  {id:9,sitio:'Sitio Ejemplo 7',usuario:'usuario3@example.com',tipo:'Personal',cada:90,dias:0,revisar:true}
+];
+var siguienteId=100;
+var S={pantalla:'entrada',filtro:'todas',busca:'',vacia:false,errGuardar:false,modo:'una',selId:2,gen:'',visibles:{},bloque:{},ssoHecho:false};
+
+function estadoDe(d){
+  if(d.dias<0){var n=-d.dias;return {c:'bad',t:'Caducada hace '+n+(n===1?' día':' días')}}
+  if(d.dias===0)return {c:'bad',t:'Caduca hoy'};
+  if(d.dias<=7)return {c:'soon',t:'Caduca en '+d.dias+(d.dias===1?' día':' días')};
+  if(d.dias<=20)return {c:'atn',t:'Caduca en '+d.dias+' días'};
+  return {c:'ok',t:'En vigor · '+d.dias+' días'};
+}
+function avatarClase(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%5;return 'a'+h}
+
+/* ---------- Navegacion ---------- */
+var pantallas=['entrada','lista','nueva','renovar','exportar','registro','seguridad'];
+var TITULOS={entrada:'',lista:'Mi lista',nueva:'Añadir',renovar:'Renovar',exportar:'Exportar',registro:'Registro',seguridad:'Seguridad'};
+function medirBanner(){document.documentElement.style.setProperty('--bh',$('.maq-banner').offsetHeight+'px')}
+function cerrarMenu(){$('#drawer').classList.remove('open');$('#scrim').classList.remove('on')}
+function ir(p){
+  S.pantalla=p;
+  pantallas.forEach(function(x){$('#s-'+x).hidden=(x!==p)});
+  document.body.classList.toggle('login',p==='entrada'); document.body.setAttribute('data-p',p);
+  $('#appTitulo').textContent=TITULOS[p]||'';
+  $$('#nav .nav-item').forEach(function(b){if(b.getAttribute('data-go')===p)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  cerrarMenu();
+  if(p==='lista')pintarLista();
+  if(p==='nueva')prepararForm();
+  if(p==='renovar')pintarRenovar();
+  if(p==='exportar')pintarExportar();
+  if(p==='registro')pintarRegistro();
+  window.scrollTo(0,0);
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-go]'); if(b){ir(b.getAttribute('data-go'))}
+});
+$('#btnMenu').addEventListener('click',function(){$('#drawer').classList.toggle('open');$('#scrim').classList.toggle('on')});
+$('#scrim').addEventListener('click',cerrarMenu);
+window.addEventListener('resize',medirBanner); medirBanner();
+
+/* ---------- Avisos emergentes (snackbar) ---------- */
+function aviso(texto,conDeshacer){
+  var cont=$('#toast');
+  var el=document.createElement('div'); el.className='snack';
+  if(!conDeshacer){
+    el.innerHTML='<div class="fila"><span>'+esc(texto)+'</span></div>';
+    cont.appendChild(el); setTimeout(function(){el.remove()},3500); return;
+  }
+  el.innerHTML='<div class="fila"><span>'+esc(texto)+'</span><button type="button">Deshacer</button></div><div class="barra"><i></i></div>';
+  cont.appendChild(el);
+  var total=20000, ini=Date.now(), barra=$('i',el), btn=$('button',el);
+  var t=setInterval(function(){
+    var r=Math.max(0,1-(Date.now()-ini)/total); barra.style.width=(r*100)+'%';
+    if(r<=0){clearInterval(t);$('.fila span',el).textContent='Ya no se puede deshacer.';btn.remove();barra.parentNode.remove();setTimeout(function(){el.remove()},2500)}
+  },100);
+  btn.addEventListener('click',function(){clearInterval(t);el.innerHTML='<div class="fila"><span>Cambio deshecho (ficticio).</span></div>';setTimeout(function(){el.remove()},2500)});
+}
+
+/* ---------- 1. Entrada ---------- */
+$('#btnSso').addEventListener('click',function(){
+  S.ssoHecho=true; $('#cardMaestra').style.opacity='1';
+  $('#maestra').disabled=false; $('#btnAbrir').disabled=false; $('#maestra').focus();
+  aviso('Identificado con el SSO (ficticio).');
+});
+$('#btnAbrir').addEventListener('click',function(){
+  var v=$('#maestra').value;
+  if(!v){$('#errMaestra').classList.add('on');return}
+  $('#errMaestra').classList.remove('on'); $('#maestra').value=''; ir('lista');
+});
+$('#btnOlvide').addEventListener('click',function(){var c=$('#cardEmergencia');c.hidden=!c.hidden;if(!c.hidden)$('#claveEmerg').focus()});
+$('#btnEmerg').addEventListener('click',function(){
+  if(!$('#claveEmerg').value){$('#errEmerg').classList.add('on');return}
+  $('#errEmerg').classList.remove('on'); $('#claveEmerg').value='';
+  aviso('Acceso recuperado con la clave de emergencia (ficticio).'); ir('lista');
+});
+
+/* ---------- 2. Lista ---------- */
+function filtrar(){
+  if(S.vacia)return [];
+  var l=datos.slice(), f=S.filtro;
+  if(f==='20')l=l.filter(function(d){return d.dias>=0&&d.dias<=20});
+  if(f==='caducadas')l=l.filter(function(d){return d.dias<0});
+  if(f==='personal')l=l.filter(function(d){return d.tipo==='Personal'});
+  if(f==='empresa')l=l.filter(function(d){return d.tipo==='Empresa'});
+  var q=S.busca.trim().toLowerCase();
+  if(q)l=l.filter(function(d){return (d.sitio+' '+d.usuario).toLowerCase().indexOf(q)>=0});
+  return l.sort(function(a,b){return a.dias-b.dias});
+}
+function pintarLista(){
+  var total=S.vacia?0:datos.length;
+  $('#resumen').textContent=total?(total+' contraseñas guardadas · las que caducan antes, primero'):'Todavía no hay nada guardado.';
+  var cad=S.vacia?0:datos.filter(function(d){return d.dias<0}).length;
+  var pro=S.vacia?0:datos.filter(function(d){return d.dias>=0&&d.dias<=7}).length;
+  $('#aviso').innerHTML=(cad||pro)?'<div class="banner">'+ic('alert')+'<span>Atención: '+(cad?cad+(cad===1?' caducada':' caducadas'):'')+(cad&&pro?' y ':'')+(pro?pro+' que '+(pro===1?'caduca':'caducan')+' en 7 días o menos':'')+'. Aviso enviado también por correo (ficticio).</span><button class="btn text small" data-go="renovar">Renovar ahora</button></div>':'';
+  $$('#filtros .fchip').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-f')===S.filtro))});
+  var l=filtrar(), cont=$('#lista');
+  if(S.vacia){cont.innerHTML='<div class="vacio"><div class="vacio-ic">'+ic('shield','big')+'</div><strong>Aún no tienes contraseñas guardadas</strong>Añade la primera y la app te avisará antes de que caduque.<div class="actions"><button class="btn filled" data-go="nueva">'+ic('plus')+'Añadir la primera</button></div></div>';return}
+  if(!l.length){cont.innerHTML='<div class="vacio"><div class="vacio-ic">'+ic('search','big')+'</div><strong>No hay resultados</strong>Prueba con otro filtro o con otra búsqueda.</div>';return}
+  var h='';
+  l.forEach(function(d){
+    var e=estadoDe(d), mostrada=S.visibles[d.id], tv=mostrada?'Ocultar contraseña':'Ver contraseña';
+    h+='<div class="item" data-id="'+d.id+'">'
+     +'<div class="avatar '+avatarClase(d.sitio)+'">'+esc(d.sitio.charAt(0))+'</div>'
+     +'<div><div class="t">'+esc(d.sitio)+'</div><div class="s">'+esc(d.usuario)+'<span class="tipo'+(d.tipo==='Empresa'?' emp':'')+'">'+(d.tipo==='Empresa'?'Empresa':'Personal')+'</span></div></div>'
+     +'<div class="when">'+fmt(sumar(d.dias))+'<small>cada '+d.cada+' días</small></div>'
+     +'<div class="st"><span class="chip '+e.c+'">'+esc(e.t)+'</span>'+(d.revisar?'<span class="chip atn">Revisar fecha</span>':'')+(d.pendiente?'<span class="chip atn">Nueva sin confirmar</span>':'')+'</div>'
+     +'<div class="act"><button class="icon-btn" data-act="ver" aria-label="'+tv+'" title="'+tv+'">'+ic(mostrada?'eye-off':'eye')+'</button>'
+     +'<button class="icon-btn" data-act="copiar" aria-label="Copiar contraseña" title="Copiar">'+ic('copy')+'</button>'
+     +(d.pendiente?'<button class="btn tonal small" data-act="confirmar">'+ic('check')+'Confirmar que funciona</button>':'<button class="btn tonal small" data-act="renovar">'+ic('refresh')+'Renovar</button>')+'</div>'
+     +(mostrada?'<div class="reveal">Contraseña: <code>(aquí aparecería la contraseña real; es una maqueta)</code></div>':'')
+     +'</div>';
+  });
+  cont.innerHTML=h;
+}
+$('#lista').addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]'); if(!b)return;
+  var id=+b.closest('.item').getAttribute('data-id');
+  var a=b.getAttribute('data-act');
+  if(a==='ver'){S.visibles[id]=!S.visibles[id];pintarLista()}
+  if(a==='copiar')aviso('Copiada (ficticio).');
+  if(a==='renovar'){S.selId=id;S.modo='una';ir('renovar')}
+  if(a==='confirmar'){var x=datos.filter(function(y){return y.id===id})[0];if(x)x.pendiente=false;pintarLista();aviso('Confirmado: ya se puede borrar la contraseña anterior (ficticio).')}
+});
+$('#filtros').addEventListener('click',function(e){var b=e.target.closest('[data-f]');if(b){S.filtro=b.getAttribute('data-f');pintarLista()}});
+$('#busca').addEventListener('input',function(e){S.busca=e.target.value;pintarLista()});
+
+/* ---------- 3. Anadir ---------- */
+function prepararForm(){
+  $('#errForm').classList.remove('on');
+  if(!$('#fUltimo').value)$('#fUltimo').value=iso(HOY);
+}
+$('#btnMostrar').addEventListener('click',function(){
+  var i=$('#fClave'), ver=i.type==='password'; i.type=ver?'text':'password';
+  this.innerHTML=ic(ver?'eye-off':'eye'); this.setAttribute('aria-label',ver?'Ocultar contraseña':'Mostrar contraseña');
+});
+$('#btnGenForm').addEventListener('click',function(){$('#fClave').value=generar(20,{may:1,min:1,num:1,sim:1})});
+$$('input[name="tipo"]').forEach(function(r){r.addEventListener('change',function(){
+  $('#avisoEmpresa').hidden=($('input[name="tipo"]:checked').value!=='Empresa');
+})});
+$('#btnGuardar').addEventListener('click',function(){
+  var err=$('#errForm'), sitio=$('#fSitio').value.trim(), user=$('#fUsuario').value.trim();
+  if(sitio.length<2||user.length<2){err.innerHTML=ic('alert','s')+'Falta el sitio o el usuario. Rellena los dos campos para guardar.';err.classList.add('on');return}
+  if(S.errGuardar){err.innerHTML=ic('alert','s')+'No se pudo guardar. Inténtalo de nuevo (ejemplo de error).';err.classList.add('on');return}
+  err.classList.remove('on');
+  var cada=+$('#fCada').value, ult=new Date($('#fUltimo').value+'T00:00:00');
+  var dias=cada-Math.round((HOY-ult)/86400000);
+  var raro=(dias<=0);
+  datos.push({id:siguienteId++,sitio:sitio,usuario:user,tipo:$('input[name="tipo"]:checked').value,cada:cada,dias:dias,revisar:raro});
+  S.vacia=false; $('#chkVacia').checked=false;
+  $('#fSitio').value='';$('#fUsuario').value='';$('#fClave').value='';
+  aviso(raro?'Guardada, pero la fecha parece imposible: queda marcada como "Revisar fecha". Puedes deshacer durante 20 segundos.':'Guardada (ficticio). Puedes deshacer durante 20 segundos.',true);
+  ir('lista');
+});
+
+/* ---------- 4. Renovar ---------- */
+function generar(len,o){
+  var may='ABCDEFGHJKLMNPQRSTUVWXYZ',min='abcdefghijkmnopqrstuvwxyz',num='23456789',sim='!@#$%&*?-_+=';
+  var grupos=[]; if(o.may)grupos.push(may); if(o.min)grupos.push(min); if(o.num)grupos.push(num); if(o.sim)grupos.push(sim);
+  if(!grupos.length)grupos=[min];
+  /* Maqueta: usa Math.random. La app real tendra que usar un generador criptografico. */
+  var r=function(n){return Math.floor(Math.random()*n)}, out=[];
+  grupos.forEach(function(g){out.push(g.charAt(r(g.length)))});
+  var todo=grupos.join('');
+  while(out.length<len)out.push(todo.charAt(r(todo.length)));
+  for(var i=out.length-1;i>0;i--){var j=r(i+1),t=out[i];out[i]=out[j];out[j]=t}
+  return out.join('');
+}
+function opcionesGen(){return {may:$('#gMay').checked,min:$('#gMin').checked,num:$('#gNum').checked,sim:$('#gSim').checked}}
+function nuevaGen(){
+  var len=+$('#gLen').value; $('#gLenOut').textContent=len;
+  S.gen=generar(len,opcionesGen()); $('#gOut').textContent=S.gen;
+  var tipos=[$('#gMay').checked,$('#gMin').checked,$('#gNum').checked,$('#gSim').checked].filter(Boolean).length;
+  var pts=Math.min(100,Math.round(len*3+tipos*8)); $('#gFuerza').style.width=pts+'%';
+  $('#gFuerzaTxt').textContent=pts>=85?'Muy fuerte':pts>=65?'Fuerte':'Mejorable: sube la longitud o añade tipos de carácter';
+}
+['gLen','gMay','gMin','gNum','gSim'].forEach(function(id){$('#'+id).addEventListener('input',nuevaGen)});
+$('#btnOtra').addEventListener('click',nuevaGen);
+$('#btnCopiarNueva').addEventListener('click',function(){aviso('Copiada (ficticio).')});
+$('#btnGuardarNueva').addEventListener('click',function(){
+  var err=$('#errRenovar');
+  if(S.errGuardar){err.classList.add('on');return}
+  err.classList.remove('on');
+  var d=datos.filter(function(x){return x.id===S.selId})[0]; if(d){d.dias=d.cada;d.pendiente=true;d.revisar=false}
+  aviso('Guardada la contraseña nueva (ficticio). Puedes deshacer durante 20 segundos.',true);
+});
+$('#modoUna').addEventListener('click',function(){S.modo='una';pintarRenovar()});
+$('#modoVarias').addEventListener('click',function(){S.modo='varias';pintarRenovar()});
+$('#rSel').addEventListener('change',function(e){S.selId=+e.target.value});
+
+function pintarRenovar(){
+  $('#modoUna').setAttribute('aria-pressed',String(S.modo==='una'));
+  $('#modoVarias').setAttribute('aria-pressed',String(S.modo==='varias'));
+  $('#panelUna').hidden=(S.modo!=='una'); $('#panelVarias').hidden=(S.modo!=='varias');
+  $('#errRenovar').classList.remove('on');
+  var lista=S.vacia?[]:datos.slice().sort(function(a,b){return a.dias-b.dias});
+  if(S.modo==='una'){
+    $('#rSel').innerHTML=lista.length?lista.map(function(d){return '<option value="'+d.id+'"'+(d.id===S.selId?' selected':'')+'>'+esc(d.sitio)+' · '+esc(estadoDe(d).t)+'</option>'}).join(''):'<option>No hay contraseñas guardadas</option>';
+    nuevaGen();
+  }else{
+    var cand=lista.filter(function(d){return d.dias<=20});
+    S.bloque={}; cand.forEach(function(d){S.bloque[d.id]=true});
+    $('#pruebaSeco').hidden=true;
+    $('#bloqueLista').innerHTML=cand.length?cand.map(function(d){return '<label><input type="checkbox" data-b="'+d.id+'" checked> <span><b>'+esc(d.sitio)+'</b> · '+esc(estadoDe(d).t)+'</span></label>'}).join(''):'<div class="vacio">No hay nada que caduque en 20 días.</div>';
+    contarBloque();
+  }
+}
+function contarBloque(){
+  var n=Object.keys(S.bloque).filter(function(k){return S.bloque[k]}).length;
+  $('#bloqueCuenta').textContent='Seleccionadas: '+n+' de 15 como máximo.'+(n>15?' Quita algunas: el tope son 15.':'');
+  $('#btnPrueba').disabled=(n===0||n>15);
+}
+$('#bloqueLista').addEventListener('change',function(e){
+  var b=e.target.getAttribute('data-b'); if(b===null)return; S.bloque[b]=e.target.checked; $('#pruebaSeco').hidden=true; contarBloque();
+});
+$('#btnPrueba').addEventListener('click',function(){
+  var ids=Object.keys(S.bloque).filter(function(k){return S.bloque[k]}).map(Number);
+  var p=$('#pruebaSeco'); p.hidden=false;
+  p.innerHTML='<b>Prueba en seco: todavía no se ha cambiado nada.</b><p>Se generarían <b>'+ids.length+'</b> contraseñas nuevas, una por cada sitio marcado. Después tendrías que cambiarlas tú, una a una, en cada web.</p>'
+   +'<div class="actions"><button class="btn filled" id="btnConfirmar">Confirmar (ficticio)</button><button class="btn text" id="btnCancelarB">Cancelar</button></div>'
+   +'<div class="err" id="errBloque" role="alert">'+ic('alert','s')+'No se pudo guardar. Inténtalo de nuevo (ejemplo de error).</div>';
+  $('#btnCancelarB').addEventListener('click',function(){p.hidden=true});
+  $('#btnConfirmar').addEventListener('click',function(){
+    if(S.errGuardar){$('#errBloque').classList.add('on');return}
+    ids.forEach(function(id){var d=datos.filter(function(x){return x.id===id})[0];if(d){d.dias=d.cada;d.pendiente=true;d.revisar=false}});
+    p.hidden=true; aviso(ids.length+' contraseñas guardadas (ficticio). Puedes deshacer durante 20 segundos.',true); ir('lista');
+  });
+});
+
+/* ---------- 5. Exportar ---------- */
+function pintarExportar(){
+  var l=(S.vacia?[]:datos.slice().sort(function(a,b){return a.dias-b.dias})).slice(0,4);
+  $('#exportVista').innerHTML=l.length?'<table class="mini"><thead><tr><th>Sitio</th><th>Usuario</th><th>Tipo</th><th>Caduca</th><th>Días</th></tr></thead><tbody>'
+   +l.map(function(d){return '<tr><td>'+esc(d.sitio)+'</td><td>'+esc(d.usuario)+'</td><td>'+esc(d.tipo)+'</td><td>'+fmt(sumar(d.dias))+'</td><td>'+d.dias+'</td></tr>'}).join('')
+   +'</tbody></table><p class="hint" style="margin-left:0">Vista previa de las primeras filas.</p>':'<div class="vacio">No hay nada que exportar todavía.</div>';
+  $('#btnExportar').disabled=!l.length;
+}
+$('#btnExportar').addEventListener('click',function(){aviso('En la maqueta no se descarga nada.')});
+
+/* ---------- 6. Registro (nunca contiene contrasenas) ---------- */
+function pintarRegistro(){
+  var ev=S.vacia?[]:[[0,'Inicio de sesión','—'],[0,'Ver contraseña','Sitio Ejemplo 1'],[1,'Cambio de contraseña','Ordenador del trabajo (ejemplo)'],[3,'Exportar lista (sin contraseñas)','—'],[8,'Alta','Sitio Ejemplo 7']];
+  $('#regTabla').innerHTML=ev.length?'<table class="mini"><thead><tr><th>Cuándo</th><th>Acción</th><th>Sitio</th></tr></thead><tbody>'
+    +ev.map(function(x){return '<tr><td>'+fmt(sumar(-x[0]))+'</td><td>'+esc(x[1])+'</td><td>'+esc(x[2])+'</td></tr>'}).join('')+'</tbody></table>'
+    :'<div class="vacio"><div class="vacio-ic">'+ic('history','big')+'</div><strong>Todavía no hay actividad</strong>Aquí aparecerá lo que hagas.</div>';
+}
+
+/* ---------- 7. Seguridad: clave de emergencia ---------- */
+$('#btnKit').addEventListener('click',function(){
+  var abc='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', g=[], i, j;
+  /* Maqueta: Math.random. La app real tendra que usar un generador criptografico. */
+  for(i=0;i<4;i++){var s='';for(j=0;j<5;j++)s+=abc.charAt(Math.floor(Math.random()*abc.length));g.push(s)}
+  $('#kitClave').textContent=g.join('-'); $('#kitClave').hidden=false; $('#kitAviso').hidden=false;
+  $('#btnImprimir').hidden=false; this.disabled=true;
+});
+$('#btnImprimir').addEventListener('click',function(){aviso('En la maqueta no se imprime nada.')});
+
+/* ---------- Panel de la maqueta ---------- */
+$('#chkVacia').addEventListener('change',function(e){S.vacia=e.target.checked;ir(S.pantalla==='entrada'?'lista':S.pantalla)});
+$('#chkError').addEventListener('change',function(e){S.errGuardar=e.target.checked});
+
+ir('entrada');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "app": "Prueba 1 Skills Gnerales",
+  "propietario": "Alexander Collaguazo Diaz",
+  "fase": "r3",
+  "creada": "2026-10-28T19:55:54",
+  "nivel_riesgo": 2,
+  "nivel_provisional": false,
+  "nivel_max": 2,
+  "pasadas_huecos": 2,
+  "rondas_cambios": 0,
+  "iteraciones_maqueta": 3,
+  "aprobacion_usuario": null,
+  "aprobacion_it_requisitos": null,
+  "descenso_confirmado_it": false,
+  "pr_url": null,
+  "historial": [
+    {
+      "fecha": "2026-10-28T19:55:54",
+      "evento": "App creada desde la plantilla"
+    },
+    {
+      "fecha": "2026-10-28T20:21:56",
+      "evento": "Puerta r1 superada. Nueva fase: r2"
+    },
+    {
+      "fecha": "2026-10-28T20:42:36",
+      "evento": "revision-huecos: pasada 1"
+    },
+    {
+      "fecha": "2026-10-28T20:53:49",
+      "evento": "revision-huecos: pasada 2"
+    },
+    {
+      "fecha": "2026-10-28T20:53:52",
+      "evento": "Puerta r2 superada. Nueva fase: r3"
+    }
+  ]
+}

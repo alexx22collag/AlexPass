@@ -1,0 +1,18 @@
+# Credenciales: nunca al repositorio
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+*.key
+local.settings.json
+
+# Generados
+__pycache__/
+*.pyc
+node_modules/
+.venv/
+venv/
+.claude/ultimo_prompt.txt
+hook-dump.jsonl

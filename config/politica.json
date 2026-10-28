@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "plataforma": "pendiente",
+  "formatos_soportados": ["web", "web_adaptable"],
+  "ramas_protegidas": ["main", "master", "prod", "release"],
+  "pasadas_huecos_max": 2,
+  "rondas_cambios_max": 3,
+  "criterios_minimos": 3,
+  "prueba_guiada_minimos": 3,
+  "umbral_registros_nivel3": 50,
+  "palabras_criticas_objeto": ["factur", "nomin", "contab", "pago", "cobro"],
+  "dni_ficticios_permitidos": ["00000000T", "12345678Z"],
+  "maqueta_marca": "MAQUETA · DATOS FICTICIOS",
+  "test_cmd": "python -m unittest discover -s tests -q",
+  "auditoria_cmds": [],
+  "etiquetas_siempre": ["FUNCIONAL", "BORDE"],
+  "ficheros_obligatorios": ["docs/ficha.md", "docs/ESTADO.json", ".gitignore", ".env.example", "CODEOWNERS",
+                            "config/politica.json", "config/campos.json", "config/manifest.sha256", "scripts/validar.py"],
+  "seguridad_ids": ["S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12", "S13", "S14", "S15", "S16"],
+  "seguridad_no_na": ["S01", "S02", "S03", "S05", "S06", "S08", "S10", "S15"],
+  "niveles": {
+    "0": {"nombre": "No toca datos de la empresa", "quien": "El usuario",
+          "controles": ["Plantilla y pipeline de IT", "Revision de IT en la solicitud de revision"]},
+    "1": {"nombre": "Solo lee datos de la empresa", "quien": "El usuario",
+          "controles": ["Identidad de solo lectura preparada por IT", "La seguridad por usuario se aplica en el origen de datos, no solo en pantalla", "Revision de IT en la solicitud de revision"]},
+    "2": {"nombre": "Escribe datos o los saca de la empresa", "quien": "El usuario con IT",
+          "controles": ["IT aprueba los requisitos antes de construir", "Prueba en seco, tope de registros y registro de auditoria", "Forma de revertir documentada", "Revision de IT en la solicitud de revision"]},
+    "3": {"nombre": "Escribe en produccion con riesgo alto", "quien": "Solo IT",
+          "controles": ["La construye IT, no el usuario", "Flujo completo con aprobacion"]}
+  }
+}

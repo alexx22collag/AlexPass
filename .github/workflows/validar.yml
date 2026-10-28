@@ -1,0 +1,24 @@
+name: validar
+# Validacion obligatoria de IT. Debe ser un "required status check" de la rama main (ver it/politicas-rama.md).
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # IT: en produccion, esta validacion deberia traer los scripts del repositorio CENTRAL de IT
+      # y no usar los de la app, para que nadie pueda alterar el control desde su propia rama.
+      - name: Instalar dependencias (si las hay)
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Validacion de IT
+        run: python scripts/validar.py --ci
