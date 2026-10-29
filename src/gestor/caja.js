@@ -33,6 +33,27 @@ const ALFABETO_EMERGENCIA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sin 0/O/1/I p
 
 const sumarDias = (iso, n) => new Date(Date.parse(iso + 'T00:00:00Z') + n * DIA_MS).toISOString().slice(0, 10);
 const diasEntre = (a, b) => Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / DIA_MS);
+const MAX_CARPETA = 40;           // largo maximo del nombre de una carpeta
+const MAX_ETIQUETA = 30;          // largo maximo de una etiqueta
+const MAX_ETIQUETAS = 10;         // etiquetas por entrada
+const limpiarCarpeta = (c) => {
+  const t = String(c == null ? '' : c).trim();
+  if (t.length > MAX_CARPETA) throw new DatoInvalido(`El nombre de la carpeta admite como máximo ${MAX_CARPETA} caracteres.`);
+  return t;
+};
+const limpiarEtiquetas = (lista) => {
+  const vistas = new Set();
+  const salida = [];
+  for (const x of Array.isArray(lista) ? lista : []) {
+    const t = String(x == null ? '' : x).trim();
+    if (!t || vistas.has(t.toLowerCase())) continue;
+    if (t.length > MAX_ETIQUETA) throw new DatoInvalido(`Cada etiqueta admite como máximo ${MAX_ETIQUETA} caracteres.`);
+    vistas.add(t.toLowerCase());
+    salida.push(t);
+  }
+  if (salida.length > MAX_ETIQUETAS) throw new DatoInvalido(`Se permiten como máximo ${MAX_ETIQUETAS} etiquetas por contraseña.`);
+  return salida;
+};
 const normClave = (c) => String(c).replace(/[-\s]/g, '').toUpperCase();
 const elegir = (cadena) => cadena[enteroAleatorio(cadena.length)];
 
@@ -110,7 +131,7 @@ export class Caja {
     return dias <= e.aviso ? 'Por caducar' : 'Vigente';
   }
   _publica(e) {
-    return { id: e.id, sitio: e.sitio, usuario: e.usuario, tipo: e.tipo, caduca: e.caduca, estado: this._estado(e), avisoDias: e.aviso };
+    return { id: e.id, sitio: e.sitio, usuario: e.usuario, tipo: e.tipo, caduca: e.caduca, estado: this._estado(e), avisoDias: e.aviso, carpeta: e.carpeta || '', etiquetas: [...(e.etiquetas || [])] };
   }
 
   // Registro de acciones: nunca lleva contraseñas, solo la accion, la fecha y el id de la entrada.
@@ -206,14 +227,16 @@ export class Caja {
   }
 
   // ---------- C1, C12: guardar, editar, borrar ----------
-  guardar(sitio, usuario, contrasena, caducaDias, { tipo = 'Otro' } = {}) {
+  guardar(sitio, usuario, contrasena, caducaDias, { tipo = 'Otro', carpeta = '', etiquetas = [] } = {}) {
     this._ok();
+    carpeta = limpiarCarpeta(carpeta);
+    etiquetas = limpiarEtiquetas(etiquetas);
     if (!sitio || !usuario || !contrasena) throw new DatoInvalido('Sitio, usuario y contraseña son obligatorios.');
     if (!Number.isInteger(caducaDias)) throw new DatoInvalido('La caducidad debe ser un número de días.');
     this._datos.n += 1;
     const id = 'e' + Array.from(aleatorio(6), (b) => b.toString(16).padStart(2, '0')).join(''); // unico entre dispositivos
     this._datos.entradas[id] = {
-      id, mod: this._reloj.ahora().toISOString(), sitio, usuario, contrasena, tipo: tipo || 'Otro', dias: caducaDias,
+      id, mod: this._reloj.ahora().toISOString(), sitio, usuario, contrasena, tipo: tipo || 'Otro', carpeta, etiquetas, dias: caducaDias,
       caduca: sumarDias(this._hoy(), caducaDias),
       revisar: caducaDias <= 0,   // C15: fecha imposible -> se guarda y se marca
       aviso: AVISO_POR_DEFECTO, anterior: null, anteriorHasta: null,
@@ -222,18 +245,22 @@ export class Caja {
     return this._publica(this._datos.entradas[id]);
   }
 
-  actualizar(id, { sitio, usuario, contrasena, tipo, caducaDias } = {}) {
+  actualizar(id, { sitio, usuario, contrasena, tipo, caducaDias, carpeta, etiquetas } = {}) {
     this._ok();
     const e = this._entrada(id);
     if (contrasena !== undefined) { // guarda lo anterior para poder deshacer 20 s (C4)
       this._deshacer = { id, previa: { ...e }, hasta: this._reloj.ahora().getTime() + SEGUNDOS_DESHACER * 1000 };
     }
+    if (carpeta !== undefined) carpeta = limpiarCarpeta(carpeta);       // se validan antes de tocar nada
+    if (etiquetas !== undefined) etiquetas = limpiarEtiquetas(etiquetas);
     this._tocar(e);
     for (const [campo, valor] of Object.entries({ sitio, usuario, contrasena, tipo })) {
       if (valor === undefined) continue;
       if (valor === '') throw new DatoInvalido(`El campo ${campo} no puede quedar vacío.`);
       e[campo] = valor;
     }
+    if (carpeta !== undefined) e.carpeta = carpeta;
+    if (etiquetas !== undefined) e.etiquetas = etiquetas;
     if (caducaDias !== undefined) {
       e.dias = caducaDias;
       e.caduca = sumarDias(this._hoy(), caducaDias);
@@ -262,14 +289,49 @@ export class Caja {
   }
 
   // ---------- C9: listar, buscar, filtrar ----------
-  listar({ buscar, estado } = {}) {
+  listar({ buscar, estado, carpeta, etiqueta } = {}) {
     this._ok();
     const b = buscar ? buscar.toLowerCase() : null;
+    const et = etiqueta ? String(etiqueta).toLowerCase() : null;
     return Object.values(this._datos.entradas)
-      .filter((e) => !b || e.sitio.toLowerCase().includes(b) || e.usuario.toLowerCase().includes(b))
+      .filter((e) => !b || e.sitio.toLowerCase().includes(b) || e.usuario.toLowerCase().includes(b)
+        || (e.carpeta || '').toLowerCase().includes(b) || (e.etiquetas || []).some((t) => t.toLowerCase().includes(b)))
+      .filter((e) => !carpeta || (e.carpeta || '') === carpeta)
+      .filter((e) => !et || (e.etiquetas || []).some((t) => t.toLowerCase() === et))
       .map((e) => this._publica(e))
       .filter((e) => !estado || e.estado === estado)
       .sort((x, y) => (x.caduca + x.sitio).localeCompare(y.caduca + y.sitio));
+  }
+
+  // ---------- carpetas y etiquetas (v2) ----------
+  // No hay un registro aparte: las carpetas y etiquetas que existen son las que usan las entradas.
+  carpetas() {
+    this._ok();
+    const m = new Map();
+    for (const e of Object.values(this._datos.entradas)) if (e.carpeta) m.set(e.carpeta, (m.get(e.carpeta) || 0) + 1);
+    return [...m].map(([nombre, n]) => ({ nombre, n })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }
+
+  etiquetas() {
+    this._ok();
+    const m = new Map();
+    for (const e of Object.values(this._datos.entradas)) {
+      for (const t of e.etiquetas || []) { const k = t.toLowerCase(); m.set(k, { nombre: m.has(k) ? m.get(k).nombre : t, n: (m.has(k) ? m.get(k).n : 0) + 1 }); }
+    }
+    return [...m.values()].sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }
+
+  // Cambia el nombre de una carpeta en todas sus entradas (nombre vacio = quitarlas de la carpeta). Devuelve cuantas cambia.
+  renombrarCarpeta(viejo, nuevo) {
+    this._ok();
+    nuevo = limpiarCarpeta(nuevo);
+    let n = 0;
+    for (const e of Object.values(this._datos.entradas)) {
+      if ((e.carpeta || '') !== viejo) continue;
+      e.carpeta = nuevo; this._tocar(e); n++;
+    }
+    if (n) this.anotar('carpeta_renombrada', String(n));
+    return n;
   }
 
   mensajeVacio() { return 'Aún no tienes contraseñas guardadas'; }

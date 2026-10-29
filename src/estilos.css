@@ -23,10 +23,19 @@ button.peligro { color:var(--mal); border-color:color-mix(in srgb, var(--mal) 55
 .fila-botones { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; align-items:center; }
 .lista { list-style:none; margin:0; padding:0; }
 .entrada { margin-bottom:10px; }
-.fila { width:100%; display:grid; grid-template-columns:1fr auto; gap:2px 12px; text-align:left; padding:14px 16px; border-radius:14px; border-left:6px solid var(--borde); box-shadow:var(--sombra); }
+.fila { width:100%; display:grid; grid-template-columns:auto 1fr auto; column-gap:14px; row-gap:2px; align-items:center; text-align:left; padding:14px 16px; border-radius:14px; border-left:6px solid var(--borde); box-shadow:var(--sombra); }
 .fila:hover { transform:translateY(-1px); }
 .sitio { font-weight:700; font-size:1.05rem; } .usuario, .caduca { color:var(--suave); font-size:.9rem; font-weight:500; }
-.etiqueta { grid-row:1 / span 2; grid-column:2; align-self:center; font-size:.78rem; font-weight:700; padding:4px 11px; border-radius:99px; border:1.5px solid var(--borde); background:var(--fondo); }
+.avatar { grid-row:1 / span 4; grid-column:1; width:44px; height:44px; flex:none; }
+.fila .sitio, .fila .usuario, .fila .caduca, .fila .chips { grid-column:2; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 2px; }
+.chip { font:inherit; font-size:.76rem; font-weight:650; padding:2px 10px; min-height:0; border-radius:99px; border:1.5px solid var(--borde); background:color-mix(in srgb, var(--primario) 10%, var(--papel)); color:var(--texto); display:inline-block; }
+.chip.carpeta { background:color-mix(in srgb, var(--aviso) 14%, var(--papel)); border-color:color-mix(in srgb, var(--aviso) 45%, var(--borde)); }
+button.chip { cursor:pointer; box-shadow:none; }
+button.chip.activa { background:linear-gradient(120deg, var(--primario), var(--primario2)); color:var(--primario-t); border-color:transparent; }
+.filtros { margin:12px 0; }
+.cabecera-detalle { display:flex; align-items:center; gap:12px; margin-bottom:6px; } .cabecera-detalle h2 { margin:0; }
+.etiqueta { grid-row:1 / span 4; grid-column:3; align-self:center; font-size:.78rem; font-weight:700; padding:4px 11px; border-radius:99px; border:1.5px solid var(--borde); background:var(--fondo); }
 .estado-caducada .fila { border-left-color:var(--mal); } .estado-caducada .etiqueta { color:var(--mal); border-color:var(--mal); }
 .estado-por-caducar .fila, .estado-revisar .fila { border-left-color:var(--aviso); } .estado-por-caducar .etiqueta, .estado-revisar .etiqueta { color:var(--aviso); border-color:var(--aviso); }
 .estado-vigente .fila { border-left-color:var(--ok); } .estado-vigente .etiqueta { color:var(--ok); border-color:var(--ok); }

@@ -7,7 +7,8 @@ import { AccesoDenegado, DatoInvalido, DeshacerNoDisponible, LimiteExcedido } fr
 import { AlmacenDrive } from './gestor/drive.js';
 import { Portapapeles } from './gestor/portapapeles.js';
 import * as biometria from './biometria.js';
-import { campoContrasenaHtml, esc, listaHtml } from './gestor/vistas.js';
+import { avatarHtml } from './gestor/iconos.js';
+import { campoContrasenaHtml, chipsHtml, esc, listaHtml } from './gestor/vistas.js';
 
 const reloj = { ahora: () => new Date() };
 const app = new Aplicacion({
@@ -19,7 +20,8 @@ const portapapeles = new Portapapeles(reloj, (t) => { navigator.clipboard.writeT
 
 const $ = (s) => document.querySelector(s);
 const vista = $('#vista');
-let filtro = { buscar: '', estado: '' };
+let filtro = { buscar: '', estado: '', carpeta: '', etiqueta: '' };
+const partir = (t) => String(t || '').split(',');
 let deshacerHasta = 0;
 let infoBaja = null;
 let bioPendiente = null; // id de una passkey recien creada que aun no ha dado su secreto
@@ -95,11 +97,18 @@ function pantallaLista() {
   const avisos = c.avisos().map((a) => `<p class="aviso ${a.motivo === 'caducada' ? 'mal' : ''}">${a.motivo === 'caducada' ? 'Caducada' : 'Caduca pronto'}: <strong>${esc(a.sitio)}</strong></p>`).join('');
   const dups = c.avisosDuplicados().map((d) => `<p class="aviso">${d.tipo === 'contrasena_repetida' ? 'Misma contraseña en' : 'Usuario repetido en'}: ${esc(d.sitios.join(', '))}</p>`).join('');
   const baja = infoBaja ? `<p class="aviso mal">Caja dada de baja: se borrará 30 días después del ${esc(fecha(infoBaja))}.</p>` : '';
+  const carpetas = c.carpetas();
+  const etiquetas = c.etiquetas();
+  if (filtro.carpeta && !carpetas.some((x) => x.nombre === filtro.carpeta)) filtro.carpeta = '';
+  if (filtro.etiqueta && !etiquetas.some((x) => x.nombre.toLowerCase() === filtro.etiqueta.toLowerCase())) filtro.etiqueta = '';
+  const filtrosExtra = `${carpetas.length ? `<label for="filtro-carpeta">Carpeta</label><select id="filtro-carpeta"><option value="">Todas</option>${carpetas.map((x) => `<option value="${esc(x.nombre)}" ${filtro.carpeta === x.nombre ? 'selected' : ''}>${esc(x.nombre)} (${x.n})</option>`).join('')}</select>${filtro.carpeta ? '<div class="fila-botones"><button type="button" data-accion="renombrar-carpeta">Renombrar carpeta</button></div>' : ''}` : ''}
+    ${etiquetas.length ? `<div class="chips filtros">${etiquetas.map((x) => `<button type="button" class="chip ${filtro.etiqueta.toLowerCase() === x.nombre.toLowerCase() ? 'activa' : ''}" data-accion="filtrar-etiqueta" data-valor="${esc(x.nombre)}">${esc(x.nombre)} · ${x.n}</button>`).join('')}</div>` : ''}`;
   mostrar(`${baja}${avisos}${dups}
     <div class="fila-botones"><button type="button" class="primario" data-accion="nueva">Añadir contraseña</button>
       <button type="button" data-accion="renovar-varias">Renovar varias</button></div>
     <label for="buscar">Buscar</label><input id="buscar" type="search" value="${esc(filtro.buscar)}" autocomplete="off" placeholder="Sitio o usuario">
     <label for="filtro">Estado</label><select id="filtro">${['', 'Vigente', 'Por caducar', 'Caducada', 'Revisar'].map((e) => `<option value="${e}" ${filtro.estado === e ? 'selected' : ''}>${e || 'Todos'}</option>`).join('')}</select>
+    ${filtrosExtra}
     <div id="resultado">${listaHtml(c.listar(filtro))}</div>
     <div class="fila-botones"><button type="button" data-accion="excel">Exportar a Excel</button><button type="button" data-accion="ics">Calendario (.ics)</button>
       <button type="button" data-accion="registro">Registro</button><button type="button" data-accion="emergencia">Clave de emergencia</button>
@@ -110,7 +119,7 @@ function pantallaDetalle(id, secreto = null) {
   const e = caja().listar().find((x) => x.id === id);
   if (!e) { pantallaLista(); return; }
   const anterior = caja().contrasenaAnterior(id);
-  mostrar(`<section class="tarjeta"><h2>${esc(e.sitio)}</h2><p>${esc(e.usuario)} · caduca ${esc(e.caduca)} · ${esc(e.estado)} · ${esc(e.tipo)}</p>
+  mostrar(`<section class="tarjeta"><div class="cabecera-detalle">${avatarHtml(e.sitio)}<h2>${esc(e.sitio)}</h2></div>${chipsHtml(e)}<p>${esc(e.usuario)} · caduca ${esc(e.caduca)} · ${esc(e.estado)} · ${esc(e.tipo)}</p>
     ${secreto !== null ? `<p class="secreto">${esc(secreto)}</p>` : ''}
     ${anterior !== null ? '<p class="aviso">Hay una contraseña anterior guardada 5 días por si la nueva no funciona.</p>' : ''}
     <div class="fila-botones">
@@ -131,6 +140,9 @@ function pantallaFormulario(id = null, propuesta = '') {
     <label for="longitud">Longitud (mínimo 12)</label><input id="longitud" type="number" min="12" max="128" value="20">
     <label for="dias">Caduca dentro de (días)</label><input id="dias" name="dias" type="number" required value="90">
     <label for="tipo">Tipo</label><input id="tipo" name="tipo" autocomplete="off" value="${esc(e ? e.tipo : 'Otro')}">
+    <label for="carpeta">Carpeta (opcional)</label><input id="carpeta" name="carpeta" list="lista-carpetas" maxlength="40" autocomplete="off" value="${esc(e ? e.carpeta : '')}">
+    <datalist id="lista-carpetas">${caja().carpetas().map((x) => `<option value="${esc(x.nombre)}">`).join('')}</datalist>
+    <label for="etiquetas">Etiquetas (opcional, separadas por comas)</label><input id="etiquetas" name="etiquetas" autocomplete="off" value="${esc(e ? e.etiquetas.join(', ') : '')}">
     <label for="aviso">Avisarme (días antes)</label><input id="aviso" name="aviso" type="number" min="0" max="365" value="${e ? e.avisoDias : 7}">
     <div class="fila-botones"><button class="primario" type="submit">Guardar</button><button type="button" data-accion="lista">Cancelar</button></div></form></section>`);
   if (propuesta) $('#contrasena').value = propuesta;
@@ -232,6 +244,14 @@ const acciones = {
     if (ok) { estado('Sincronizado con tu Google Drive.'); pantallaLista(); }
     else estado('No se ha podido sincronizar. Tus cambios siguen aquí: pulsa «Reconectar» y vuelve a intentarlo.', true);
   },
+  'filtrar-etiqueta'(el) { filtro.etiqueta = filtro.etiqueta.toLowerCase() === el.dataset.valor.toLowerCase() ? '' : el.dataset.valor; pantallaLista(); },
+  async 'renombrar-carpeta'() {
+    const nuevo = globalThis.prompt(`Nuevo nombre para la carpeta «${filtro.carpeta}» (vacío = quitarla):`, filtro.carpeta);
+    if (nuevo === null) return;
+    caja().renombrarCarpeta(filtro.carpeta, nuevo);
+    filtro.carpeta = nuevo.trim();
+    await persistir(); pantallaLista();
+  },
   'face-id': () => pantallaFaceId(),
   async 'activar-face-id'() {
     const { id, secreto } = await biometria.registrar();
@@ -278,13 +298,13 @@ const formularios = {
     const dias = Number(d.get('dias'));
     const contrasena = d.get('contrasena');
     if (id) {
-      const cambios = { sitio: d.get('sitio'), usuario: d.get('usuario'), tipo: d.get('tipo'), caducaDias: dias };
+      const cambios = { sitio: d.get('sitio'), usuario: d.get('usuario'), tipo: d.get('tipo'), caducaDias: dias, carpeta: d.get('carpeta'), etiquetas: partir(d.get('etiquetas')) };
       if (contrasena) cambios.contrasena = contrasena;
       caja().actualizar(id, cambios);
       caja().programarAviso(id, Number(d.get('aviso')));
       if (contrasena) deshacerHasta = Date.now() + 20000;
     } else {
-      const e = caja().guardar(d.get('sitio'), d.get('usuario'), contrasena, dias, { tipo: d.get('tipo') });
+      const e = caja().guardar(d.get('sitio'), d.get('usuario'), contrasena, dias, { tipo: d.get('tipo'), carpeta: d.get('carpeta'), etiquetas: partir(d.get('etiquetas')) });
       caja().programarAviso(e.id, Number(d.get('aviso')));
     }
     await persistir();
@@ -325,6 +345,7 @@ vista.addEventListener('input', (ev) => {
   $('#resultado').innerHTML = listaHtml(caja().listar(filtro));
 });
 vista.addEventListener('change', (ev) => {
+  if (ev.target.id === 'filtro-carpeta') { filtro.carpeta = ev.target.value; pantallaLista(); return; }
   if (ev.target.id !== 'filtro') return;
   filtro.estado = ev.target.value;
   $('#resultado').innerHTML = listaHtml(caja().listar(filtro));
