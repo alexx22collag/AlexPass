@@ -20,6 +20,7 @@ const MIN_LONGITUD = 12;
 const LONGITUD_POR_DEFECTO = 20;
 const MIN_MAESTRA = 12;
 const DIA_MS = 86400000;
+const DIAS_BORRADAS = 90;         // cuanto se recuerda un borrado para que no reaparezca al sincronizar
 const TIPOS = {
   minusculas: 'abcdefghijklmnopqrstuvwxyz',
   mayusculas: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -79,6 +80,7 @@ export class Caja {
   // ---------- interno ----------
   _ok() { if (!this._abierta) throw new AccesoDenegado('La caja está cerrada.'); }
   _hoy() { return this._reloj.ahora().toISOString().slice(0, 10); }
+  _tocar(e) { e.mod = this._reloj.ahora().toISOString(); } // fecha del ultimo cambio: decide quien gana al sincronizar
   _entrada(id) {
     const e = this._datos.entradas[id];
     if (!e) throw new DatoInvalido('No existe esa entrada.');
@@ -118,15 +120,54 @@ export class Caja {
     return JSON.stringify(this._c);
   }
 
+  // ---------- C31-C34: fusionar con la copia de Drive ----------
+  // Entradas: gana la modificacion mas reciente; lo borrado en un sitio se borra en el otro.
+  // Si el texto no se puede descifrar con la clave de esta caja, lanza AccesoDenegado y no cambia nada.
+  async fusionar(texto) {
+    this._ok();
+    let remoto;
+    try {
+      const c = JSON.parse(texto);
+      remoto = JSON.parse(aTexto(await descifrar(this._claveDatos, c.datos)));
+      this._remotoC = c;
+    } catch { throw new AccesoDenegado('La caja de Drive no se puede abrir con esta clave. No se ha sobrescrito.'); }
+    const local = this._datos;
+    const borradas = { ...(remoto.borradas || {}) };
+    for (const [id, f] of Object.entries(local.borradas || {})) if (!borradas[id] || borradas[id] < f) borradas[id] = f;
+    const limite = new Date(this._reloj.ahora().getTime() - DIAS_BORRADAS * DIA_MS).toISOString();
+    for (const id of Object.keys(borradas)) if (borradas[id] < limite) delete borradas[id];
+    let cambios = 0;
+    const entradas = { ...local.entradas };
+    for (const [id, r] of Object.entries(remoto.entradas || {})) {
+      const l = entradas[id];
+      if (!l) { entradas[id] = r; cambios++; } else if ((r.mod || '') > (l.mod || '')) { entradas[id] = r; cambios++; }
+    }
+    for (const [id, f] of Object.entries(borradas)) {
+      if (entradas[id] && (entradas[id].mod || '') <= f) { delete entradas[id]; cambios++; }
+    }
+    const vistos = new Set();
+    local.registro = [...local.registro, ...(remoto.registro || [])]
+      .filter((r) => { const k = r.fecha + '|' + r.accion + '|' + r.detalle; if (vistos.has(k)) return false; vistos.add(k); return true; })
+      .sort((a, b) => a.fecha.localeCompare(b.fecha));
+    local.entradas = entradas;
+    local.borradas = borradas;
+    local.n = Math.max(local.n, remoto.n || 0);
+    if (!this._c.salE && this._remotoC.salE) { this._c.salE = this._remotoC.salE; this._c.kE = this._remotoC.kE; }
+    if (!this._c.bajaEl && this._remotoC.bajaEl) this._c.bajaEl = this._remotoC.bajaEl;
+    this._remotoC = null;
+    this._purgarRegistro();
+    return { cambios };
+  }
+
   // ---------- C1, C12: guardar, editar, borrar ----------
   guardar(sitio, usuario, contrasena, caducaDias, { tipo = 'Otro' } = {}) {
     this._ok();
     if (!sitio || !usuario || !contrasena) throw new DatoInvalido('Sitio, usuario y contraseña son obligatorios.');
     if (!Number.isInteger(caducaDias)) throw new DatoInvalido('La caducidad debe ser un número de días.');
     this._datos.n += 1;
-    const id = 'e' + this._datos.n;
+    const id = 'e' + Array.from(aleatorio(6), (b) => b.toString(16).padStart(2, '0')).join(''); // unico entre dispositivos
     this._datos.entradas[id] = {
-      id, sitio, usuario, contrasena, tipo: tipo || 'Otro', dias: caducaDias,
+      id, mod: this._reloj.ahora().toISOString(), sitio, usuario, contrasena, tipo: tipo || 'Otro', dias: caducaDias,
       caduca: sumarDias(this._hoy(), caducaDias),
       revisar: caducaDias <= 0,   // C15: fecha imposible -> se guarda y se marca
       aviso: AVISO_POR_DEFECTO, anterior: null, anteriorHasta: null,
@@ -141,6 +182,7 @@ export class Caja {
     if (contrasena !== undefined) { // guarda lo anterior para poder deshacer 20 s (C4)
       this._deshacer = { id, previa: { ...e }, hasta: this._reloj.ahora().getTime() + SEGUNDOS_DESHACER * 1000 };
     }
+    this._tocar(e);
     for (const [campo, valor] of Object.entries({ sitio, usuario, contrasena, tipo })) {
       if (valor === undefined) continue;
       if (valor === '') throw new DatoInvalido(`El campo ${campo} no puede quedar vacío.`);
@@ -159,6 +201,7 @@ export class Caja {
     this._ok();
     this._entrada(id);
     delete this._datos.entradas[id];
+    (this._datos.borradas ||= {})[id] = this._reloj.ahora().toISOString();
     this.anotar('borrado', id);
   }
 
@@ -167,6 +210,7 @@ export class Caja {
     this._ok();
     if (!this._deshacer || this._reloj.ahora().getTime() > this._deshacer.hasta) throw new DeshacerNoDisponible('Ya no se puede deshacer.');
     this._datos.entradas[this._deshacer.id] = this._deshacer.previa;
+    this._tocar(this._deshacer.previa);
     this.anotar('deshacer', this._deshacer.id);
     this._deshacer = null;
   }
@@ -202,7 +246,9 @@ export class Caja {
   programarAviso(id, dias) {
     this._ok();
     if (!Number.isInteger(dias) || dias < 0 || dias > 365) throw new DatoInvalido('La antelación debe estar entre 0 y 365 días.');
-    this._entrada(id).aviso = dias;
+    const e = this._entrada(id);
+    e.aviso = dias;
+    this._tocar(e);
   }
 
   avisos() {
@@ -245,6 +291,7 @@ export class Caja {
     if (!nueva) throw new DatoInvalido('La nueva contraseña no puede estar vacía.');
     e.anterior = e.contrasena;
     e.anteriorHasta = new Date(this._reloj.ahora().getTime() + DIAS_ANTERIOR * DIA_MS).toISOString();
+    this._tocar(e);
     e.contrasena = nueva;
     if (e.dias > 0) e.caduca = sumarDias(this._hoy(), e.dias);
     this.anotar('renovacion', id);
@@ -262,6 +309,7 @@ export class Caja {
     this._ok();
     const e = this._entrada(id);
     e.anterior = null; e.anteriorHasta = null;
+    this._tocar(e);
     this.anotar('renovacion_confirmada', id);
   }
 

@@ -69,10 +69,13 @@ export class Aplicacion {
   abrirCaja(maestra) { return this._abrirCon(abrir, maestra); }
   abrirCajaEmergencia(clave) { return this._abrirCon(abrirEmergencia, clave, 'acceso_con_clave_emergencia'); }
 
-  // Cifra y envia la caja. Si falla (sin conexion, sesion caducada), el cambio sigue en memoria (C30).
+  // Cifra y envia la caja. Antes trae lo de Drive y lo fusiona (C31-C34).
+  // Si falla (sin conexion, sesion caducada, caja ajena), el cambio sigue en memoria y no se sobrescribe nada (C30).
   async guardar() {
     if (!this.caja) return false;
     try {
+      const remoto = await this._almacen.leer();
+      if (remoto) await this.caja.fusionar(remoto);
       await this._almacen.escribir(await this.caja.contenedor());
       this.pendiente = false;
       return true;
@@ -80,6 +83,12 @@ export class Aplicacion {
       this.pendiente = true;
       return false;
     }
+  }
+
+  // Boton «Sincronizar»: trae los cambios de otros dispositivos y sube los propios.
+  async sincronizar() {
+    this._requiereSesion();
+    return this.guardar();
   }
 
   async darDeBaja() {

@@ -99,7 +99,7 @@ function pantallaLista() {
     <div id="resultado">${listaHtml(c.listar(filtro))}</div>
     <div class="fila-botones"><button type="button" data-accion="excel">Exportar a Excel</button><button type="button" data-accion="ics">Calendario (.ics)</button>
       <button type="button" data-accion="registro">Registro</button><button type="button" data-accion="emergencia">Clave de emergencia</button>
-      <button type="button" data-accion="reconectar">Reconectar</button><button type="button" class="peligro" data-accion="baja">Dar de baja</button></div>`);
+      <button type="button" data-accion="sincronizar">Sincronizar</button><button type="button" data-accion="reconectar">Reconectar</button><button type="button" class="peligro" data-accion="baja">Dar de baja</button></div>`);
 }
 
 function pantallaDetalle(id, secreto = null) {
@@ -207,6 +207,12 @@ const acciones = {
   imprimir: () => globalThis.print(),
   baja: () => pantallaBaja(),
   async 'baja-confirmar'() { await app.darDeBaja(); infoBaja = new Date().toISOString(); estado('Caja dada de baja.'); pantallaLista(); },
+  async sincronizar() {
+    estado('Sincronizando…');
+    const ok = await app.sincronizar();
+    if (ok) { estado('Sincronizado con tu Google Drive.'); pantallaLista(); }
+    else estado('No se ha podido sincronizar. Tus cambios siguen aquí: pulsa «Reconectar» y vuelve a intentarlo.', true);
+  },
   async reconectar() {
     try { await app.iniciarSesion(); await persistir(); } catch (e) { estado(mensajeError(e), true); }
   },

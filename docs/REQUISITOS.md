@@ -7,7 +7,7 @@ El propietario se olvida siempre de las contraseñas: entre intentos fallidos y 
 Criterio de éxito (palabras del usuario): encontrar su contraseña en menos de 5 minutos, y que la app le avise una semana antes de que caduque o cuando lo haya programado.
 
 ## Alcance
-La versión 1 hace estas 12 cosas (de la ficha, de más a menos importante):
+La versión 1 hace estas 13 cosas (de la ficha, de más a menos importante):
 1. **Guardar** una contraseña: se introducen sitio, usuario, contraseña y cada cuánto caduca; se obtiene una entrada en la lista.
 2. **Avisar** dentro de la app antes de que caduquen, con la antelación que se programe (por defecto una semana). Sin correo electrónico.
 3. **Generar** contraseñas aleatorias: longitud por defecto 20, mínima 12, con los tipos de carácter elegidos.
@@ -20,6 +20,7 @@ La versión 1 hace estas 12 cosas (de la ficha, de más a menos importante):
 10. **Renovar varias a la vez** (máximo 15), con prueba en seco antes de confirmar.
 11. **Registro de acciones** (quién, cuándo y qué acción; nunca contraseñas), 12 meses, visible solo para su dueño.
 12. **Editar y borrar** una entrada.
+13. **Sincronizar** entre dispositivos: un botón «Sincronizar» trae los cambios hechos en otro dispositivo (web o móvil) y sube los propios, sin perder nada de ninguno de los dos.
 
 Reglas de funcionamiento acordadas:
 - Para ver datos hace falta iniciar sesión con Google y abrir la caja con la contraseña maestra.
@@ -30,6 +31,8 @@ Reglas de funcionamiento acordadas:
 - Con la lista vacía se muestra un mensaje y un botón para añadir la primera.
 - Si se da de baja al usuario, la caja se conserva 30 días y se borra la primera vez que se abre la app pasado ese plazo (no hay servidor que lo haga por su cuenta).
 - Si no hay conexión o la sesión de Google ha caducado al guardar, se avisa y el cambio no se pierde mientras la pestaña siga abierta; se guarda al volver a iniciar sesión.
+- Cada vez que se guarda, primero se trae lo que haya en Drive y se fusiona con lo local: las entradas nuevas de cualquiera de los dos se conservan; si la misma entrada se cambió en los dos, gana la modificación más reciente; lo borrado en un dispositivo se borra en el otro. Si la caja de Drive no se puede leer o descifrar, no se sobrescribe y se avisa.
+- Límite conocido: sin servidor no hay bloqueo; si dos dispositivos guardan en el mismo segundo, el segundo puede pisar al primero. Se corrige con el siguiente «Sincronizar».
 - Lo que no se guarda: la contraseña maestra nunca se guarda ni queda en el navegador; las contraseñas en claro tampoco quedan en el navegador (caché, historial, autocompletado, almacenamiento local).
 - A Google Drive solo llega texto cifrado. El cifrado se hace en el navegador, antes de enviarlo.
 - El registro de acciones vive dentro de la caja cifrada. No es una auditoría a prueba de manipulación: el propio dueño podría alterarlo.

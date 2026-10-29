@@ -4,8 +4,8 @@
 - Propietario: Alexander Collaguazo Diaz
 - Fase: verify (Verificacion)
 - Nivel de riesgo: 2
-- Rondas de cambios de alcance: 1
-- Aprobacion del usuario: Alexander Collaguazo Diaz el 2026-10-29T09:58:27
+- Rondas de cambios de alcance: 2
+- Aprobacion del usuario: Alexander Collaguazo Diaz el 2026-10-29T12:26:06
 - Solicitud de revision: sin abrir
 
 ## Historial
@@ -22,3 +22,8 @@
 - 2026-10-29T09:58:27: Requisitos y criterios aprobados por Alexander Collaguazo Diaz
 - 2026-10-29T09:58:27: Puerta r3 superada. Nueva fase: build
 - 2026-10-29T10:04:43: Puerta build superada. Nueva fase: verify
+- 2026-10-29T12:23:55: Cambio de alcance (2 de 3): Sincronizacion entre dispositivos: boton Sincronizar y fusion al guardar. Hallazgo: dos dispositivos abiertos se pisan (ultimo en guardar gana, se pierden contrasenas).
+- 2026-10-29T12:26:06: Requisitos y criterios aprobados por Alexander Collaguazo Diaz
+- 2026-10-29T12:27:02: IT aprueba los requisitos (Alexander Collaguazo Diaz)
+- 2026-10-29T12:27:09: Puerta r3 superada. Nueva fase: build
+- 2026-10-29T12:28:00: Puerta build superada. Nueva fase: verify

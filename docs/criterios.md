@@ -33,3 +33,7 @@ Etiquetas: FUNCIONAL, BORDE, AUTORIZACION, SEGURIDAD, LIMITE, RENDIMIENTO.
 - C28 [SEGURIDAD] Lo que se envía a Google Drive es solo texto cifrado: no contiene ninguna contraseña, sitio, usuario ni la contraseña maestra en claro.
 - C29 [SEGURIDAD] La app pide a Google un solo permiso (guardar archivos propios de la app en Drive) y no accede a ningún otro fichero del Drive.
 - C30 [BORDE] Si no hay conexión o la sesión de Google ha caducado al guardar, se avisa y el cambio no se pierde mientras la pestaña siga abierta; se guarda al volver a iniciar sesión.
+- C31 [FUNCIONAL] El botón «Sincronizar» trae a un dispositivo las entradas creadas, cambiadas o borradas en otro dispositivo con la misma cuenta, y sube las propias.
+- C32 [BORDE] Si dos dispositivos añaden una contraseña cada uno sin sincronizar, al guardar o sincronizar los dos acaban con las dos contraseñas (ninguna se pierde).
+- C33 [BORDE] Si la misma entrada se cambia en dos dispositivos, gana el cambio más reciente; si se borra en uno, se borra también en el otro y no reaparece.
+- C34 [SEGURIDAD] Si la caja de Drive no se puede descifrar con la clave de este dispositivo, no se sobrescribe y se avisa; a Drive sigue llegando solo texto cifrado.

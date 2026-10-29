@@ -7,18 +7,18 @@
   "nivel_provisional": false,
   "nivel_max": 2,
   "pasadas_huecos": 2,
-  "rondas_cambios": 1,
+  "rondas_cambios": 2,
   "iteraciones_maqueta": 3,
   "aprobacion_usuario": {
     "por": "Alexander Collaguazo Diaz",
-    "frase": "APRUEBO REQUISITOS 64864e4c",
-    "hash": "64864e4c0f9702fc82a3dbbaaa33abe2021cb456285632063e02df4443108023",
-    "fecha": "2026-10-29T09:58:27"
+    "frase": "APRUEBO REQUISITOS 63c26abf",
+    "hash": "63c26abf0be47c2c257b76b6e60845310d58ce98fea7fd4c285b89601dd8d307",
+    "fecha": "2026-10-29T12:26:06"
   },
   "aprobacion_it_requisitos": {
     "por": "Alexander Collaguazo Diaz",
-    "hash": "64864e4c0f9702fc82a3dbbaaa33abe2021cb456285632063e02df4443108023",
-    "fecha": "2026-10-29T09:57:23"
+    "hash": "63c26abf0be47c2c257b76b6e60845310d58ce98fea7fd4c285b89601dd8d307",
+    "fecha": "2026-10-29T12:27:02"
   },
   "descenso_confirmado_it": false,
   "pr_url": null,
@@ -73,6 +73,26 @@
     },
     {
       "fecha": "2026-10-29T10:04:43",
+      "evento": "Puerta build superada. Nueva fase: verify"
+    },
+    {
+      "fecha": "2026-10-29T12:23:55",
+      "evento": "Cambio de alcance (2 de 3): Sincronizacion entre dispositivos: boton Sincronizar y fusion al guardar. Hallazgo: dos dispositivos abiertos se pisan (ultimo en guardar gana, se pierden contrasenas)."
+    },
+    {
+      "fecha": "2026-10-29T12:26:06",
+      "evento": "Requisitos y criterios aprobados por Alexander Collaguazo Diaz"
+    },
+    {
+      "fecha": "2026-10-29T12:27:02",
+      "evento": "IT aprueba los requisitos (Alexander Collaguazo Diaz)"
+    },
+    {
+      "fecha": "2026-10-29T12:27:09",
+      "evento": "Puerta r3 superada. Nueva fase: build"
+    },
+    {
+      "fecha": "2026-10-29T12:28:00",
       "evento": "Puerta build superada. Nueva fase: verify"
     }
   ]
