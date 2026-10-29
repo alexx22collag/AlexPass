@@ -38,8 +38,9 @@ export class AlmacenDrive {
   async escribir(texto) {
     const id = this._id || await this._buscar();
     if (id) {
-      await this._llamar(`${SUBIDA}/${id}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: texto });
-      return;
+      const r = await this._llamar(`${SUBIDA}/${id}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: texto });
+      if (r.status !== 404) return;
+      this._id = null; // el fichero ya no existe (borrado en otro dispositivo): se vuelve a crear
     }
     const meta = JSON.stringify({ name: NOMBRE, parents: ['appDataFolder'] });
     const cuerpo = `--${FRONTERA}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n`

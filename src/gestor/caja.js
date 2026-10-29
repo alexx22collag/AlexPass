@@ -20,6 +20,8 @@ const MIN_LONGITUD = 12;
 const LONGITUD_POR_DEFECTO = 20;
 const MIN_MAESTRA = 12;
 const DIA_MS = 86400000;
+const ITER_MIN = 1000;            // rango admitido de iteraciones PBKDF2 al abrir una caja (C38)
+const ITER_MAX = 5000000;
 const DIAS_BORRADAS = 90;         // cuanto se recuerda un borrado para que no reaparezca al sincronizar
 const TIPOS = {
   minusculas: 'abcdefghijklmnopqrstuvwxyz',
@@ -51,7 +53,7 @@ export async function crear(maestra, { reloj, iteraciones = ITERACIONES_POR_DEFE
 async function abrirCon(texto, secreto, saltKey, kKey, { reloj }) {
   let c;
   try { c = JSON.parse(texto); } catch { throw new AccesoDenegado('No se pudo abrir la caja.'); }
-  if (!c || !c[kKey] || !c[saltKey]) throw new AccesoDenegado('No se pudo abrir la caja.');
+  if (!c || !c[kKey] || !c[saltKey] || !Number.isInteger(c.iter) || c.iter < ITER_MIN || c.iter > ITER_MAX) throw new AccesoDenegado('No se pudo abrir la caja.');
   try {
     const k = await descifrar(await derivar(secreto, deb64(c[saltKey]), c.iter), c[kKey]);
     const claveDatos = await claveDesdeBytes(k);
@@ -194,7 +196,9 @@ export class Caja {
     const bio = new Map([...(this._remotoC.bio || []), ...(this._c.bio || [])].map((b) => [b.id, b]));
     this._c.bio = [...bio.values()].filter((b) => !quitadas.has(b.id));
     this._c.bioQuitadas = [...quitadas];
-    if (!this._c.salE && this._remotoC.salE) { this._c.salE = this._remotoC.salE; this._c.kE = this._remotoC.kE; }
+    if (this._remotoC.salE && (!this._c.salE || (this._remotoC.emerEl || '') > (this._c.emerEl || ''))) {
+      this._c.salE = this._remotoC.salE; this._c.kE = this._remotoC.kE; this._c.emerEl = this._remotoC.emerEl;
+    }
     if (!this._c.bajaEl && this._remotoC.bajaEl) this._c.bajaEl = this._remotoC.bajaEl;
     this._remotoC = null;
     this._purgarRegistro();
@@ -331,7 +335,8 @@ export class Caja {
     this._ok();
     const e = this._entrada(id);
     if (!nueva) throw new DatoInvalido('La nueva contraseña no puede estar vacía.');
-    e.anterior = e.contrasena;
+    const sinConfirmar = e.anterior !== null && this._reloj.ahora().toISOString() < e.anteriorHasta;
+    if (!sinConfirmar) e.anterior = e.contrasena; // si ya hay una renovacion sin confirmar, se conserva la original
     e.anteriorHasta = new Date(this._reloj.ahora().getTime() + DIAS_ANTERIOR * DIA_MS).toISOString();
     this._tocar(e);
     e.contrasena = nueva;
@@ -358,7 +363,7 @@ export class Caja {
   // ---------- C10, C24: renovar varias (nivel 2: en seco, tope, confirmacion) ----------
   renovarVarias(ids, { confirmar = false } = {}) {
     this._ok();
-    ids = [...ids];
+    ids = [...new Set(ids)];
     if (ids.length > LIMITE_RENOVAR) throw new LimiteExcedido(`Se pueden renovar como máximo ${LIMITE_RENOVAR} a la vez.`);
     ids.forEach((i) => this._entrada(i));
     if (!confirmar) { this.anotar('prueba_en_seco', String(ids.length)); return { cambios: ids.length, aplicado: false }; }
@@ -375,6 +380,7 @@ export class Caja {
     const sal = aleatorio(16);
     this._c.salE = b64(sal);
     this._c.kE = await cifrar(await derivar(clave, sal, this._c.iter), this._k);
+    this._c.emerEl = this._reloj.ahora().toISOString();
     this.emergenciaPendiente = true;
     this.anotar('clave_emergencia_generada');
     return clave.match(/.{4}/g).join('-');

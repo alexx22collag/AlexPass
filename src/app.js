@@ -116,7 +116,7 @@ function pantallaDetalle(id, secreto = null) {
     <div class="fila-botones">
       <button type="button" data-accion="ver" data-id="${esc(id)}">Ver</button><button type="button" data-accion="copiar" data-id="${esc(id)}">Copiar</button>
       <button type="button" data-accion="editar" data-id="${esc(id)}">Editar</button><button type="button" data-accion="renovar" data-id="${esc(id)}">Renovar</button>
-      ${anterior !== null ? `<button type="button" data-accion="confirmar-renovacion" data-id="${esc(id)}">La nueva funciona</button>` : ''}
+      ${anterior !== null ? `<button type="button" data-accion="ver-anterior" data-id="${esc(id)}">Ver la anterior</button><button type="button" data-accion="confirmar-renovacion" data-id="${esc(id)}">La nueva funciona</button>` : ''}
       <button type="button" class="peligro" data-accion="borrar" data-id="${esc(id)}">Borrar</button><button type="button" data-accion="lista">Volver</button></div></section>`);
 }
 
@@ -207,6 +207,7 @@ const acciones = {
     pantallaDetalle(el.dataset.id, nueva);
     estado('Contraseña nueva generada. Cámbiala en el sitio y pulsa «La nueva funciona». La anterior se conserva 5 días.');
   },
+  'ver-anterior'(el) { pantallaDetalle(el.dataset.id, caja().contrasenaAnterior(el.dataset.id)); estado('Esta es la contraseña ANTERIOR, guardada por si la nueva no funciona.'); },
   async 'confirmar-renovacion'(el) { caja().confirmarRenovacion(el.dataset.id); await persistir(); pantallaDetalle(el.dataset.id); },
   async borrar(el) {
     if (!globalThis.confirm('¿Borrar esta entrada?')) return;
