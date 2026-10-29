@@ -6,6 +6,7 @@ import { Aplicacion } from './gestor/aplicacion.js';
 import { AccesoDenegado, DatoInvalido, DeshacerNoDisponible, LimiteExcedido } from './gestor/caja.js';
 import { AlmacenDrive } from './gestor/drive.js';
 import { Portapapeles } from './gestor/portapapeles.js';
+import * as biometria from './biometria.js';
 import { campoContrasenaHtml, esc, listaHtml } from './gestor/vistas.js';
 
 const reloj = { ahora: () => new Date() };
@@ -21,6 +22,7 @@ const vista = $('#vista');
 let filtro = { buscar: '', estado: '' };
 let deshacerHasta = 0;
 let infoBaja = null;
+let bioPendiente = null; // id de una passkey recien creada que aun no ha dado su secreto
 
 // ---------- utilidades ----------
 function estado(texto, error = false) {
@@ -76,7 +78,9 @@ function pantallaCaja(info) {
     ${info.baja ? `<p class="aviso mal">Esta caja está dada de baja desde ${esc(fecha(info.baja))} y se borrará pasados 30 días.</p>` : ''}
     <form data-form="abrir"><label for="maestra">Contraseña maestra</label>${campoContrasenaHtml('maestra')}
     <div class="fila-botones"><button class="primario" type="submit">Abrir</button>
+    <button type="button" class="oculto" id="boton-face-id" data-accion="entrar-face-id">Entrar con Face ID</button>
     <button type="button" data-accion="emergencia-entrar">Usar clave de emergencia</button></div></form></section>`);
+  if (info.tieneBio) biometria.soportado().then((ok) => { const b = $('#boton-face-id'); if (ok && b) b.classList.remove('oculto'); });
 }
 
 function pantallaEmergenciaEntrar() {
@@ -99,7 +103,7 @@ function pantallaLista() {
     <div id="resultado">${listaHtml(c.listar(filtro))}</div>
     <div class="fila-botones"><button type="button" data-accion="excel">Exportar a Excel</button><button type="button" data-accion="ics">Calendario (.ics)</button>
       <button type="button" data-accion="registro">Registro</button><button type="button" data-accion="emergencia">Clave de emergencia</button>
-      <button type="button" data-accion="sincronizar">Sincronizar</button><button type="button" data-accion="reconectar">Reconectar</button><button type="button" class="peligro" data-accion="baja">Dar de baja</button></div>`);
+      <button type="button" data-accion="face-id">Face ID</button><button type="button" data-accion="sincronizar">Sincronizar</button><button type="button" data-accion="reconectar">Reconectar</button><button type="button" class="peligro" data-accion="baja">Dar de baja</button></div>`);
 }
 
 function pantallaDetalle(id, secreto = null) {
@@ -160,6 +164,20 @@ function pantallaEmergencia(clave = null) {
   </section>`);
 }
 
+async function pantallaFaceId() {
+  const ids = caja().listarBiometria();
+  const posible = await biometria.soportado();
+  mostrar(`<section class="tarjeta"><h2>Face ID / huella</h2>
+    <p>Permite abrir la caja con Face ID o la huella en vez de la contraseña maestra (sigue haciendo falta iniciar sesión con Google). La maestra y la clave de emergencia siguen funcionando. Quien pueda desbloquear este dispositivo podrá abrir la caja.</p>
+    <p>Dispositivos activados: <strong>${ids.length}</strong></p>
+    ${ids.map((id, i) => `<div class="fila-botones"><span>Dispositivo ${i + 1}</span><button type="button" class="peligro" data-accion="quitar-face-id" data-id="${esc(id)}">Quitar</button></div>`).join('')}
+    <div class="fila-botones">
+      ${bioPendiente ? '<button type="button" class="primario" data-accion="terminar-face-id">Terminar activación con Face ID</button>'
+        : posible ? '<button type="button" class="primario" data-accion="activar-face-id">Activar en este dispositivo</button>'
+        : '<span class="aviso">Este dispositivo o navegador no permite Face ID para abrir la caja.</span>'}
+      <button type="button" data-accion="lista">Volver</button></div></section>`);
+}
+
 function pantallaBaja() {
   mostrar(`<section class="tarjeta"><h2>Dar de baja</h2>
     <p>La caja se conservará 30 días y se borrará la primera vez que abras la app pasado ese plazo. Exporta antes lo que necesites.</p>
@@ -212,6 +230,29 @@ const acciones = {
     const ok = await app.sincronizar();
     if (ok) { estado('Sincronizado con tu Google Drive.'); pantallaLista(); }
     else estado('No se ha podido sincronizar. Tus cambios siguen aquí: pulsa «Reconectar» y vuelve a intentarlo.', true);
+  },
+  'face-id': () => pantallaFaceId(),
+  async 'activar-face-id'() {
+    const { id, secreto } = await biometria.registrar();
+    if (!secreto) { bioPendiente = id; estado('Passkey creada. Pulsa «Terminar activación» y confirma con Face ID.'); await pantallaFaceId(); return; }
+    await app.activarBiometria(id, secreto);
+    estado('Face ID activado en este dispositivo.'); await pantallaFaceId();
+  },
+  async 'terminar-face-id'() {
+    const { id, secreto } = await biometria.leer(bioPendiente);
+    bioPendiente = null;
+    await app.activarBiometria(id, secreto);
+    estado('Face ID activado en este dispositivo.'); await pantallaFaceId();
+  },
+  async 'quitar-face-id'(el) {
+    if (!globalThis.confirm('¿Quitar Face ID de este dispositivo?')) return;
+    await app.quitarBiometria(el.dataset.id);
+    estado('Dispositivo quitado.'); await pantallaFaceId();
+  },
+  async 'entrar-face-id'() {
+    const { id, secreto } = await biometria.leer();
+    await app.abrirCajaBiometria(id, secreto);
+    estado(''); pantallaLista();
   },
   async reconectar() {
     try { await app.iniciarSesion(); await persistir(); } catch (e) { estado(mensajeError(e), true); }

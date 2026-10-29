@@ -7,7 +7,7 @@ El propietario se olvida siempre de las contraseñas: entre intentos fallidos y 
 Criterio de éxito (palabras del usuario): encontrar su contraseña en menos de 5 minutos, y que la app le avise una semana antes de que caduque o cuando lo haya programado.
 
 ## Alcance
-La versión 1 hace estas 13 cosas (de la ficha, de más a menos importante):
+La versión 1 hace estas 14 cosas (de la ficha, de más a menos importante):
 1. **Guardar** una contraseña: se introducen sitio, usuario, contraseña y cada cuánto caduca; se obtiene una entrada en la lista.
 2. **Avisar** dentro de la app antes de que caduquen, con la antelación que se programe (por defecto una semana). Sin correo electrónico.
 3. **Generar** contraseñas aleatorias: longitud por defecto 20, mínima 12, con los tipos de carácter elegidos.
@@ -21,6 +21,7 @@ La versión 1 hace estas 13 cosas (de la ficha, de más a menos importante):
 11. **Registro de acciones** (quién, cuándo y qué acción; nunca contraseñas), 12 meses, visible solo para su dueño.
 12. **Editar y borrar** una entrada.
 13. **Sincronizar** entre dispositivos: un botón «Sincronizar» trae los cambios hechos en otro dispositivo (web o móvil) y sube los propios, sin perder nada de ninguno de los dos.
+14. **Entrar con Face ID o huella** (passkey del dispositivo, WebAuthn con extensión PRF) como alternativa a la contraseña maestra: desde una caja abierta con la maestra se activa en cada dispositivo y se puede quitar. La maestra y la clave de emergencia siguen valiendo siempre.
 
 Reglas de funcionamiento acordadas:
 - Para ver datos hace falta iniciar sesión con Google y abrir la caja con la contraseña maestra.
@@ -33,6 +34,7 @@ Reglas de funcionamiento acordadas:
 - Si no hay conexión o la sesión de Google ha caducado al guardar, se avisa y el cambio no se pierde mientras la pestaña siga abierta; se guarda al volver a iniciar sesión.
 - Cada vez que se guarda, primero se trae lo que haya en Drive y se fusiona con lo local: las entradas nuevas de cualquiera de los dos se conservan; si la misma entrada se cambió en los dos, gana la modificación más reciente; lo borrado en un dispositivo se borra en el otro. Si la caja de Drive no se puede leer o descifrar, no se sobrescribe y se avisa.
 - Límite conocido: sin servidor no hay bloqueo; si dos dispositivos guardan en el mismo segundo, el segundo puede pisar al primero. Se corrige con el siguiente «Sincronizar».
+- Face ID / huella: solo si el dispositivo lo soporta (si no, el botón no aparece). Sigue haciendo falta iniciar sesión con Google. El secreto que devuelve el dispositivo cifra una copia de la clave de datos, guardada cifrada en la caja de Drive; sin el dispositivo y su verificación biométrica no se obtiene. No se guarda ninguna clave en el navegador. Quien tenga el dispositivo y pueda desbloquearlo con la biometría (o el código del dispositivo) puede abrir la caja: es una comodidad frente a la maestra, decidida por el propietario.
 - Lo que no se guarda: la contraseña maestra nunca se guarda ni queda en el navegador; las contraseñas en claro tampoco quedan en el navegador (caché, historial, autocompletado, almacenamiento local).
 - A Google Drive solo llega texto cifrado. El cifrado se hace en el navegador, antes de enviarlo.
 - El registro de acciones vive dentro de la caja cifrada. No es una auditoría a prueba de manipulación: el propio dueño podría alterarlo.

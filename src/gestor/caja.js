@@ -62,6 +62,21 @@ async function abrirCon(texto, secreto, saltKey, kKey, { reloj }) {
   }
 }
 
+// C35, C36: abrir con el secreto que da Face ID (el dispositivo ya verifico al usuario).
+export async function abrirBiometria(texto, id, secreto, { reloj }) {
+  const denegar = () => new AccesoDenegado('No se pudo abrir la caja.');
+  let c;
+  try { c = JSON.parse(texto); } catch { throw denegar(); }
+  const reg = ((c && c.bio) || []).find((b) => b.id === id);
+  if (!reg || !(secreto instanceof Uint8Array) || secreto.length !== 32) throw denegar();
+  try {
+    const k = await descifrar(await claveDesdeBytes(secreto), reg.k);
+    const claveDatos = await claveDesdeBytes(k);
+    const datos = JSON.parse(aTexto(await descifrar(claveDatos, c.datos)));
+    return new Caja(reloj, c, k, claveDatos, datos);
+  } catch { throw denegar(); }
+}
+
 export const abrir = (texto, maestra, opciones) => abrirCon(texto, maestra, 'salM', 'kM', opciones);
 export const abrirEmergencia = (texto, clave, opciones) => abrirCon(texto, normClave(clave), 'salE', 'kE', opciones);
 
@@ -120,6 +135,29 @@ export class Caja {
     return JSON.stringify(this._c);
   }
 
+  // ---------- C35-C38: Face ID ----------
+  // bio = [{id, k}]: k es la clave de datos cifrada con el secreto del dispositivo. bioQuitadas evita que reaparezcan al fusionar.
+  async activarBiometria(id, secreto) {
+    this._ok();
+    if (!id || !(secreto instanceof Uint8Array) || secreto.length !== 32) throw new DatoInvalido('Face ID no válido.');
+    const k = await cifrar(await claveDesdeBytes(secreto), this._k);
+    this._c.bio = [...(this._c.bio || []).filter((b) => b.id !== id), { id, k }];
+    this._c.bioQuitadas = (this._c.bioQuitadas || []).filter((x) => x !== id);
+    this.anotar('face_id_activado');
+  }
+
+  quitarBiometria(id) {
+    this._ok();
+    this._c.bio = (this._c.bio || []).filter((b) => b.id !== id);
+    if (!(this._c.bioQuitadas || []).includes(id)) this._c.bioQuitadas = [...(this._c.bioQuitadas || []), id];
+    this.anotar('face_id_quitado');
+  }
+
+  listarBiometria() {
+    this._ok();
+    return (this._c.bio || []).map((b) => b.id);
+  }
+
   // ---------- C31-C34: fusionar con la copia de Drive ----------
   // Entradas: gana la modificacion mas reciente; lo borrado en un sitio se borra en el otro.
   // Si el texto no se puede descifrar con la clave de esta caja, lanza AccesoDenegado y no cambia nada.
@@ -152,6 +190,10 @@ export class Caja {
     local.entradas = entradas;
     local.borradas = borradas;
     local.n = Math.max(local.n, remoto.n || 0);
+    const quitadas = new Set([...(this._c.bioQuitadas || []), ...(this._remotoC.bioQuitadas || [])]);
+    const bio = new Map([...(this._remotoC.bio || []), ...(this._c.bio || [])].map((b) => [b.id, b]));
+    this._c.bio = [...bio.values()].filter((b) => !quitadas.has(b.id));
+    this._c.bioQuitadas = [...quitadas];
     if (!this._c.salE && this._remotoC.salE) { this._c.salE = this._remotoC.salE; this._c.kE = this._remotoC.kE; }
     if (!this._c.bajaEl && this._remotoC.bajaEl) this._c.bajaEl = this._remotoC.bajaEl;
     this._remotoC = null;

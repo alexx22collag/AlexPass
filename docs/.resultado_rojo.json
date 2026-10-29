@@ -1,8 +1,9 @@
 {
-  "fecha": "2026-10-29T12:27:36",
+  "fecha": "2026-10-29T12:48:51",
   "codigo": 1,
   "ficheros": {
     "tests/js/base.mjs": "c74d790c64446a97e0b6eb275a12cfc421d2b094f99d7b0850d88eaa2a5d6160",
+    "tests/js/biometria.test.mjs": "83754fc07b929de0fce36e6e42fe890d199dc1658750a73ca5b9783cf9cde7ba",
     "tests/js/borde_seguridad_limite.test.mjs": "d020920fa359e7919236961a766eba5d2cd63ea56f14ef0af4a03f3c6b910282",
     "tests/js/funcional.test.mjs": "ca006148a5865679690cce69c5961152653b0991d9fec132f5d9cc53091266e8",
     "tests/js/google_drive.test.mjs": "057ee75cc879f70a88e98fa553dc67c2acfeffe743b390524aa3c2067125b9a0",

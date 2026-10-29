@@ -2,7 +2,7 @@
 //   identidad.iniciarSesion() -> {usuario, token}     (en el navegador: login de Google)
 //   crearAlmacen(sesion)      -> {leer, escribir, borrar}   (en el navegador: AlmacenDrive)
 // Sin login y sin la contraseña maestra (o la clave de emergencia) no se puede ver ningun dato.
-import { AccesoDenegado, DatoInvalido, abrir, abrirEmergencia, crear } from './caja.js';
+import { AccesoDenegado, DatoInvalido, abrir, abrirBiometria, abrirEmergencia, crear } from './caja.js';
 import { ITERACIONES_POR_DEFECTO } from './cripto.js';
 
 const DIAS_BAJA = 30;           // la caja dada de baja se conserva 30 dias (C19)
@@ -39,12 +39,13 @@ export class Aplicacion {
     const texto = await this._almacen.leer();
     if (!texto) return { hayCaja: false };
     let baja = null;
-    try { baja = JSON.parse(texto).bajaEl; } catch { baja = null; }
+    let tieneBio = false;
+    try { const c = JSON.parse(texto); baja = c.bajaEl; tieneBio = Array.isArray(c.bio) && c.bio.length > 0; } catch { baja = null; }
     if (baja && this._reloj.ahora().getTime() - Date.parse(baja) >= DIAS_BAJA * DIA_MS) {
       await this._almacen.borrar();
       return { hayCaja: false, borrada: true };
     }
-    return { hayCaja: true, baja };
+    return { hayCaja: true, baja, tieneBio };
   }
 
   async crearCaja(maestra) {
@@ -67,6 +68,7 @@ export class Aplicacion {
   }
 
   abrirCaja(maestra) { return this._abrirCon(abrir, maestra); }
+  abrirCajaBiometria(id, secreto) { return this._abrirCon((t, s, o) => abrirBiometria(t, id, s, o), secreto, 'acceso_con_face_id'); }
   abrirCajaEmergencia(clave) { return this._abrirCon(abrirEmergencia, clave, 'acceso_con_clave_emergencia'); }
 
   // Cifra y envia la caja. Antes trae lo de Drive y lo fusiona (C31-C34).
@@ -88,6 +90,19 @@ export class Aplicacion {
   // Boton «Sincronizar»: trae los cambios de otros dispositivos y sube los propios.
   async sincronizar() {
     this._requiereSesion();
+    return this.guardar();
+  }
+
+  // Face ID (C35-C37): se activa y se quita con la caja ya abierta; se guarda en la caja cifrada de Drive.
+  async activarBiometria(id, secreto) {
+    this._requiereSesion();
+    await this.caja.activarBiometria(id, secreto);
+    return this.guardar();
+  }
+
+  async quitarBiometria(id) {
+    this._requiereSesion();
+    this.caja.quitarBiometria(id);
     return this.guardar();
   }
 

@@ -4,8 +4,8 @@
 - Propietario: Alexander Collaguazo Diaz
 - Fase: verify (Verificacion)
 - Nivel de riesgo: 2
-- Rondas de cambios de alcance: 2
-- Aprobacion del usuario: Alexander Collaguazo Diaz el 2026-10-29T12:26:06
+- Rondas de cambios de alcance: 3
+- Aprobacion del usuario: Alexander Collaguazo Diaz el 2026-10-29T12:48:27
 - Solicitud de revision: sin abrir
 
 ## Historial
@@ -27,3 +27,8 @@
 - 2026-10-29T12:27:02: IT aprueba los requisitos (Alexander Collaguazo Diaz)
 - 2026-10-29T12:27:09: Puerta r3 superada. Nueva fase: build
 - 2026-10-29T12:28:00: Puerta build superada. Nueva fase: verify
+- 2026-10-29T12:46:33: Cambio de alcance (3 de 3): Entrada con Face ID/huella (WebAuthn PRF) como alternativa a la contrasena maestra. Probado por el usuario en iPhone (Safari y pantalla de inicio): secreto identico en dos lecturas.
+- 2026-10-29T12:48:14: IT aprueba los requisitos (Alexander Collaguazo Diaz)
+- 2026-10-29T12:48:27: Requisitos y criterios aprobados por Alexander Collaguazo Diaz
+- 2026-10-29T12:48:49: Puerta r3 superada. Nueva fase: build
+- 2026-10-29T12:50:24: Puerta build superada. Nueva fase: verify

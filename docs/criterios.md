@@ -37,3 +37,7 @@ Etiquetas: FUNCIONAL, BORDE, AUTORIZACION, SEGURIDAD, LIMITE, RENDIMIENTO.
 - C32 [BORDE] Si dos dispositivos añaden una contraseña cada uno sin sincronizar, al guardar o sincronizar los dos acaban con las dos contraseñas (ninguna se pierde).
 - C33 [BORDE] Si la misma entrada se cambia en dos dispositivos, gana el cambio más reciente; si se borra en uno, se borra también en el otro y no reaparece.
 - C34 [SEGURIDAD] Si la caja de Drive no se puede descifrar con la clave de este dispositivo, no se sobrescribe y se avisa; a Drive sigue llegando solo texto cifrado.
+- C35 [FUNCIONAL] Tras abrir la caja con la contraseña maestra se puede activar Face ID o huella en el dispositivo; después la caja se abre con ese método (con el inicio de sesión de Google) sin escribir la maestra, y la maestra y la clave de emergencia siguen abriéndola.
+- C36 [BORDE] Si el dispositivo no soporta el secreto biométrico, o la verificación se cancela o falla, no se abre la caja ni se altera nada, y se puede entrar con la maestra.
+- C37 [BORDE] Un dispositivo se puede quitar; desde ese momento su Face ID ya no abre la caja, también en los demás dispositivos tras sincronizar, y no reaparece al fusionar.
+- C38 [SEGURIDAD] A Drive solo llega texto cifrado: ni la clave de datos ni el secreto biométrico salen en claro, y la clave de datos no queda guardada en el navegador.

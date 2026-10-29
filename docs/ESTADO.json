@@ -7,18 +7,18 @@
   "nivel_provisional": false,
   "nivel_max": 2,
   "pasadas_huecos": 2,
-  "rondas_cambios": 2,
+  "rondas_cambios": 3,
   "iteraciones_maqueta": 3,
   "aprobacion_usuario": {
     "por": "Alexander Collaguazo Diaz",
-    "frase": "APRUEBO REQUISITOS 63c26abf",
-    "hash": "63c26abf0be47c2c257b76b6e60845310d58ce98fea7fd4c285b89601dd8d307",
-    "fecha": "2026-10-29T12:26:06"
+    "frase": "APRUEBO REQUISITOS 30b4fb60",
+    "hash": "30b4fb60a3e6f33dfe41d97c3f83322f8db57908b9463be645888da8c2c22fe8",
+    "fecha": "2026-10-29T12:48:27"
   },
   "aprobacion_it_requisitos": {
     "por": "Alexander Collaguazo Diaz",
-    "hash": "63c26abf0be47c2c257b76b6e60845310d58ce98fea7fd4c285b89601dd8d307",
-    "fecha": "2026-10-29T12:27:02"
+    "hash": "30b4fb60a3e6f33dfe41d97c3f83322f8db57908b9463be645888da8c2c22fe8",
+    "fecha": "2026-10-29T12:48:14"
   },
   "descenso_confirmado_it": false,
   "pr_url": null,
@@ -93,6 +93,26 @@
     },
     {
       "fecha": "2026-10-29T12:28:00",
+      "evento": "Puerta build superada. Nueva fase: verify"
+    },
+    {
+      "fecha": "2026-10-29T12:46:33",
+      "evento": "Cambio de alcance (3 de 3): Entrada con Face ID/huella (WebAuthn PRF) como alternativa a la contrasena maestra. Probado por el usuario en iPhone (Safari y pantalla de inicio): secreto identico en dos lecturas."
+    },
+    {
+      "fecha": "2026-10-29T12:48:14",
+      "evento": "IT aprueba los requisitos (Alexander Collaguazo Diaz)"
+    },
+    {
+      "fecha": "2026-10-29T12:48:27",
+      "evento": "Requisitos y criterios aprobados por Alexander Collaguazo Diaz"
+    },
+    {
+      "fecha": "2026-10-29T12:48:49",
+      "evento": "Puerta r3 superada. Nueva fase: build"
+    },
+    {
+      "fecha": "2026-10-29T12:50:24",
       "evento": "Puerta build superada. Nueva fase: verify"
     }
   ]
