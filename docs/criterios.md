@@ -21,11 +21,15 @@ Etiquetas: FUNCIONAL, BORDE, AUTORIZACION, SEGURIDAD, LIMITE, RENDIMIENTO.
 - C16 [BORDE] Al renovar, la contraseña anterior se conserva hasta que confirmo que la nueva funciona o, si no la confirmo, durante 5 días.
 - C17 [BORDE] La app avisa si la misma contraseña está en dos sitios y si hay un usuario repetido en el mismo sitio.
 - C18 [BORDE] Sin la contraseña maestra ni la clave de emergencia no hay forma de abrir la caja y no existe recuperación por terceros; con la clave de emergencia se recupera el acceso.
-- C19 [BORDE] Tras la baja del usuario, la caja se conserva 30 días y luego se borra.
-- C20 [SEGURIDAD] Sin iniciar sesión con el SSO y sin abrir la caja con la contraseña maestra no se muestra ningún dato.
+- C19 [BORDE] Tras la baja del usuario, la caja se conserva 30 días y se borra la primera vez que se abre la app pasado ese plazo.
+- C20 [SEGURIDAD] Sin iniciar sesión con Google y sin abrir la caja con la contraseña maestra no se muestra ningún dato.
 - C21 [SEGURIDAD] Las contraseñas se guardan cifradas y la contraseña maestra nunca se guarda en ningún sitio.
-- C22 [SEGURIDAD] Las contraseñas en claro no quedan en el navegador (caché, historial ni autocompletado).
+- C22 [SEGURIDAD] Las contraseñas en claro no quedan en el navegador (caché, historial, autocompletado ni almacenamiento local).
 - C23 [SEGURIDAD] Ninguna exportación (Excel o calendario) contiene contraseñas, y la clave de emergencia nunca se envía por correo.
 - C24 [LIMITE] Renovar varias a la vez admite como máximo 15 cambios; con más de 15 se rechaza sin modificar nada.
 - C25 [LIMITE] El margen para deshacer es de 20 segundos: pasado ese tiempo, Deshacer ya no está disponible.
 - C26 [LIMITE] El registro de acciones se conserva 12 meses.
+- C27 [FUNCIONAL] Una caja guardada en Google Drive se abre desde otro dispositivo con la misma cuenta de Google y la contraseña maestra, y muestra las mismas entradas.
+- C28 [SEGURIDAD] Lo que se envía a Google Drive es solo texto cifrado: no contiene ninguna contraseña, sitio, usuario ni la contraseña maestra en claro.
+- C29 [SEGURIDAD] La app pide a Google un solo permiso (guardar archivos propios de la app en Drive) y no accede a ningún otro fichero del Drive.
+- C30 [BORDE] Si no hay conexión o la sesión de Google ha caducado al guardar, se avisa y el cambio no se pierde mientras la pestaña siga abierta; se guarda al volver a iniciar sesión.

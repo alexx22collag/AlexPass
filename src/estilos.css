@@ -1,0 +1,33 @@
+:root { --fondo:#f6f7f9; --papel:#fff; --texto:#1b1f24; --suave:#5b6573; --borde:#d8dde4; --primario:#1f5fd1; --primario-t:#fff; --ok:#1a7f4b; --aviso:#b26a00; --mal:#b3261e; }
+@media (prefers-color-scheme: dark) { :root { --fondo:#12151a; --papel:#1b2027; --texto:#e8ebf0; --suave:#9aa5b4; --borde:#303846; --primario:#6ea0ff; --primario-t:#0b1220; --ok:#5fd394; --aviso:#f0b24b; --mal:#ff8a80; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--fondo); color:var(--texto); font:16px/1.45 system-ui, sans-serif; }
+.cabecera { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--papel); border-bottom:1px solid var(--borde); position:sticky; top:0; }
+h1 { margin:0; font-size:1.2rem; } h2 { font-size:1.1rem; margin:0 0 12px; }
+main { max-width:720px; margin:0 auto; padding:16px; }
+.tarjeta { background:var(--papel); border:1px solid var(--borde); border-radius:12px; padding:16px; margin-bottom:16px; }
+label { display:block; font-weight:600; margin:12px 0 4px; }
+input, select { width:100%; padding:10px 12px; font:inherit; color:inherit; background:var(--fondo); border:1px solid var(--borde); border-radius:8px; }
+input[type=checkbox] { width:auto; margin-right:8px; }
+button { font:inherit; padding:10px 14px; border-radius:8px; border:1px solid var(--borde); background:var(--papel); color:var(--texto); cursor:pointer; min-height:44px; }
+button.primario { background:var(--primario); color:var(--primario-t); border-color:var(--primario); }
+button.peligro { color:var(--mal); border-color:var(--mal); }
+.fila-botones { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+.lista { list-style:none; margin:0; padding:0; }
+.entrada { margin-bottom:8px; }
+.fila { width:100%; display:grid; grid-template-columns:1fr auto; gap:2px 12px; text-align:left; }
+.sitio { font-weight:600; } .usuario, .caduca { color:var(--suave); font-size:.9rem; }
+.etiqueta { grid-row:1 / span 2; grid-column:2; align-self:center; font-size:.8rem; padding:2px 8px; border-radius:99px; border:1px solid var(--borde); }
+.estado-caducada .etiqueta { color:var(--mal); border-color:var(--mal); }
+.estado-por-caducar .etiqueta, .estado-revisar .etiqueta { color:var(--aviso); border-color:var(--aviso); }
+.estado-vigente .etiqueta { color:var(--ok); border-color:var(--ok); }
+.aviso { border-left:4px solid var(--aviso); padding:8px 12px; margin-bottom:12px; background:var(--papel); border-radius:6px; }
+.aviso.mal { border-color:var(--mal); }
+.vacio { text-align:center; padding:32px 8px; color:var(--suave); }
+.secreto { font-family:ui-monospace, monospace; font-size:1.1rem; word-break:break-all; padding:12px; background:var(--fondo); border:1px dashed var(--borde); border-radius:8px; }
+.clave-emergencia { font-size:1.4rem; text-align:center; letter-spacing:.05em; }
+.barra { position:fixed; left:0; right:0; bottom:0; padding:12px 16px; background:var(--papel); border-top:1px solid var(--borde); display:flex; gap:12px; align-items:center; justify-content:center; }
+#estado { text-align:center; color:var(--suave); font-size:.9rem; min-height:1.4em; margin:0 16px 64px; }
+table { width:100%; border-collapse:collapse; font-size:.9rem; } th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--borde); }
+.oculto { display:none !important; }
+@media print { .cabecera, #estado, #deshacer, button { display:none !important; } body { background:#fff; color:#000; } }

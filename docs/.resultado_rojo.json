@@ -1,9 +1,11 @@
 {
-  "fecha": "2026-10-29T09:37:39",
+  "fecha": "2026-10-29T10:04:25",
   "codigo": 1,
   "ficheros": {
-    "tests/base.py": "ea3a4c334b88354eca2593139762943de78b892b46d63fd9fbc4e2accda83fad",
-    "tests/test_borde_limite_seguridad.py": "ec50c40f753c6f230be47d2bf462f51860a5e861e8000cadd5f1e27696e10196",
-    "tests/test_funcional.py": "0f3474b6c9a0da6a5c71d501f21b78c76c9c048c679ab0d62245e789cd80c11f"
+    "tests/js/base.mjs": "c74d790c64446a97e0b6eb275a12cfc421d2b094f99d7b0850d88eaa2a5d6160",
+    "tests/js/borde_seguridad_limite.test.mjs": "d020920fa359e7919236961a766eba5d2cd63ea56f14ef0af4a03f3c6b910282",
+    "tests/js/funcional.test.mjs": "ca006148a5865679690cce69c5961152653b0991d9fec132f5d9cc53091266e8",
+    "tests/js/google_drive.test.mjs": "057ee75cc879f70a88e98fa553dc67c2acfeffe743b390524aa3c2067125b9a0",
+    "tests/test_js.py": "4dc6331309abb6e898506d7818e1e7067207bfb6d24224404e7c43062a4e16b9"
   }
 }

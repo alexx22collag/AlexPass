@@ -1,7 +1,7 @@
 {
-  "fecha": "2026-10-29T09:40:03",
+  "fecha": "2026-10-29T10:04:26",
   "codigo": 0,
-  "hash": "0513f9e87df2f148abe9323f46fce5842c2aa5eac759685e1081341c0f0a1c3d",
+  "hash": "29c91cdefbab21f2d66224b0288a760b7217fda52f63aef5eb7bb2f5afa8d046",
   "cmd": "python -m unittest discover -s tests -q",
-  "salida": "----------------------------------------------------------------------\nRan 32 tests in 5.377s\n\nOK\n"
+  "salida": "----------------------------------------------------------------------\nRan 1 test in 0.627s\n\nOK\n"
 }

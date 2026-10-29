@@ -1,24 +1,24 @@
 {
   "app": "Prueba 1 Skills Gnerales",
   "propietario": "Alexander Collaguazo Diaz",
-  "fase": "build",
+  "fase": "verify",
   "creada": "2026-10-28T19:55:54",
   "nivel_riesgo": 2,
   "nivel_provisional": false,
   "nivel_max": 2,
   "pasadas_huecos": 2,
-  "rondas_cambios": 0,
+  "rondas_cambios": 1,
   "iteraciones_maqueta": 3,
   "aprobacion_usuario": {
     "por": "Alexander Collaguazo Diaz",
-    "frase": "APRUEBO REQUISITOS 5ba2d08e",
-    "hash": "5ba2d08eba1d1f774a13364a71cedf43e750582bb8a235b6f4bf02958583c0b8",
-    "fecha": "2026-10-29T09:35:58"
+    "frase": "APRUEBO REQUISITOS 64864e4c",
+    "hash": "64864e4c0f9702fc82a3dbbaaa33abe2021cb456285632063e02df4443108023",
+    "fecha": "2026-10-29T09:58:27"
   },
   "aprobacion_it_requisitos": {
     "por": "Alexander Collaguazo Diaz",
-    "hash": "5ba2d08eba1d1f774a13364a71cedf43e750582bb8a235b6f4bf02958583c0b8",
-    "fecha": "2026-10-29T09:34:59"
+    "hash": "64864e4c0f9702fc82a3dbbaaa33abe2021cb456285632063e02df4443108023",
+    "fecha": "2026-10-29T09:57:23"
   },
   "descenso_confirmado_it": false,
   "pr_url": null,
@@ -54,6 +54,26 @@
     {
       "fecha": "2026-10-29T09:35:59",
       "evento": "Puerta r3 superada. Nueva fase: build"
+    },
+    {
+      "fecha": "2026-10-29T09:48:18",
+      "evento": "Cambio de alcance (1 de 3): Despliegue en GitHub Pages (web y movil, sin dominio ni servidor): login con Google en vez de SSO de empresa, caja cifrada en el navegador y guardada en Google Drive (appDataFolder), sin Docker ni Python en servidor"
+    },
+    {
+      "fecha": "2026-10-29T09:57:23",
+      "evento": "IT aprueba los requisitos (Alexander Collaguazo Diaz)"
+    },
+    {
+      "fecha": "2026-10-29T09:58:27",
+      "evento": "Requisitos y criterios aprobados por Alexander Collaguazo Diaz"
+    },
+    {
+      "fecha": "2026-10-29T09:58:27",
+      "evento": "Puerta r3 superada. Nueva fase: build"
+    },
+    {
+      "fecha": "2026-10-29T10:04:43",
+      "evento": "Puerta build superada. Nueva fase: verify"
     }
   ]
 }
