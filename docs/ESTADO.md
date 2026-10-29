@@ -2,10 +2,10 @@
 
 - App: Prueba 1 Skills Gnerales
 - Propietario: Alexander Collaguazo Diaz
-- Fase: r3 (Ronda 3: cierre y requisitos)
+- Fase: build (Construccion)
 - Nivel de riesgo: 2
 - Rondas de cambios de alcance: 0
-- Aprobacion del usuario: pendiente
+- Aprobacion del usuario: Alexander Collaguazo Diaz el 2026-10-29T09:35:58
 - Solicitud de revision: sin abrir
 
 ## Historial
@@ -14,3 +14,6 @@
 - 2026-10-28T20:42:36: revision-huecos: pasada 1
 - 2026-10-28T20:53:49: revision-huecos: pasada 2
 - 2026-10-28T20:53:52: Puerta r2 superada. Nueva fase: r3
+- 2026-10-29T09:34:59: IT aprueba los requisitos (Alexander Collaguazo Diaz)
+- 2026-10-29T09:35:58: Requisitos y criterios aprobados por Alexander Collaguazo Diaz
+- 2026-10-29T09:35:59: Puerta r3 superada. Nueva fase: build
