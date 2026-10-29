@@ -114,6 +114,10 @@
     {
       "fecha": "2026-10-29T12:50:24",
       "evento": "Puerta build superada. Nueva fase: verify"
+    },
+    {
+      "fecha": "2026-10-29T13:06:50",
+      "evento": "Cambio de alcance rechazado (tope de rondas): Etiquetas por entrada y avatar/icono local por sitio (inicial y color; logos de marcas conocidas sin conexion externa)"
     }
   ]
 }

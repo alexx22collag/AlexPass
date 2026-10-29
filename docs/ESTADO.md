@@ -32,3 +32,4 @@
 - 2026-10-29T12:48:27: Requisitos y criterios aprobados por Alexander Collaguazo Diaz
 - 2026-10-29T12:48:49: Puerta r3 superada. Nueva fase: build
 - 2026-10-29T12:50:24: Puerta build superada. Nueva fase: verify
+- 2026-10-29T13:06:50: Cambio de alcance rechazado (tope de rondas): Etiquetas por entrada y avatar/icono local por sitio (inicial y color; logos de marcas conocidas sin conexion externa)
